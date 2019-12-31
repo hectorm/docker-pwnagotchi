@@ -1,0 +1,11 @@
+# enable interface monitor mode and define wifi interface to be ${PWNAGOTCHI_IFACE_MON}
+set wifi.interface ${PWNAGOTCHI_IFACE_MON}
+
+# api listening on http://127.0.0.1:8081/ and ui to http://127.0.0.1
+set api.rest.address 127.0.0.1
+set api.rest.port 8081
+set api.rest.username ${PWNAGOTCHI_USERNAME}
+set api.rest.password ${PWNAGOTCHI_PASSWORD}
+
+# go!
+api.rest on

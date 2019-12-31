@@ -1,0 +1,23 @@
+[Unit]
+Description=Pwnagotchi container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStartPre=-/bin/mkdir /var/lib/pwnagotchi/
+ExecStartPre=-/usr/bin/docker rm pwnagotchi
+ExecStart=/usr/bin/docker run \
+	--rm \
+	--name pwnagotchi \
+	--hostname pwnagotchi \
+	--log-opt max-size=32m \
+	--privileged --net host \
+	--env-file /etc/pwnagotchi.env \
+	--mount type=bind,src=/var/lib/pwnagotchi/,dst=/root/ \
+	docker.io/hectormolinero/pwnagotchi:latest
+ExecStop=/usr/bin/docker stop pwnagotchi
+Restart=always
+
+[Install]
+WantedBy=default.target

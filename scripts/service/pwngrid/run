@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -eu
+
+# Generate Pwnagotchi keys if they do not exist
+if [ ! -f /root/id_rsa ]; then
+	pwngrid -generate -keys /root/
+fi
+
+exec 2>&1
+exec pwngrid \
+		-address 127.0.0.1:8666 \
+		-keys /root/ \
+		-iface "${PWNAGOTCHI_IFACE_MON:?}" \
+		-client-token /root/.api-enrollment.json \
+		-log /var/log/pwngrid-peer.log

@@ -1,0 +1,8 @@
+gpu_mem=16
+enable_uart=1
+dtoverlay=dwc2
+dtoverlay=spi1-3cs
+dtoverlay=i2c-rtc,mcp7941x
+dtparam=spi=on
+dtparam=i2c_arm=on
+dtparam=i2c1=on

@@ -1,0 +1,15 @@
+# enable interface monitor mode and define wifi interface to be ${PWNAGOTCHI_IFACE_MON}
+set wifi.interface ${PWNAGOTCHI_IFACE_MON}
+
+# api listening on http://0.0.0.0:8081/ and ui to http://0.0.0.0
+set api.rest.address 0.0.0.0
+set api.rest.port 8081
+set http.server.address 0.0.0.0
+set http.server.port 80
+set http.server.path /usr/local/share/bettercap/ui
+set api.rest.username ${PWNAGOTCHI_USERNAME}
+set api.rest.password ${PWNAGOTCHI_PASSWORD}
+
+# go!
+api.rest on
+http.server on

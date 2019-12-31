@@ -1,0 +1,38 @@
+main:
+  name: ${PWNAGOTCHI_NAME}
+  lang: ${PWNAGOTCHI_LANG}
+  iface: ${PWNAGOTCHI_IFACE_MON}
+  whitelist: ${PWNAGOTCHI_WHITELIST}
+  filter: ${PWNAGOTCHI_FILTER}
+  plugins:
+    grid:
+      enabled: ${PWNAGOTCHI_PLUGIN_GRID_ENABLED}
+      report: ${PWNAGOTCHI_PLUGIN_GRID_REPORT}
+      exclude: ${PWNAGOTCHI_PLUGIN_GRID_EXCLUDE}
+    led:
+      enabled: ${PWNAGOTCHI_PLUGIN_LED_ENABLED}
+    memtemp:
+      enabled: ${PWNAGOTCHI_PLUGIN_MEMTEMP_ENABLED}
+    session-stats:
+      enabled: ${PWNAGOTCHI_PLUGIN_SESSION_STATS_ENABLED}
+    auto-update:
+      enabled: false
+
+ui:
+  web:
+    username: ${PWNAGOTCHI_USERNAME}
+    password: ${PWNAGOTCHI_PASSWORD}
+  display:
+    enabled: ${PWNAGOTCHI_DISPLAY_ENABLED}
+    rotation: ${PWNAGOTCHI_DISPLAY_ROTATION}
+    type: ${PWNAGOTCHI_DISPLAY_TYPE}
+
+bettercap:
+  username: ${PWNAGOTCHI_USERNAME}
+  password: ${PWNAGOTCHI_PASSWORD}
+
+personality:
+  advertise: ${PWNAGOTCHI_PERSONALITY_ADVERTISE}
+  deauth: ${PWNAGOTCHI_PERSONALITY_DEAUTH}
+  associate: ${PWNAGOTCHI_PERSONALITY_ASSOCIATE}
+  channels: ${PWNAGOTCHI_PERSONALITY_CHANNELS}

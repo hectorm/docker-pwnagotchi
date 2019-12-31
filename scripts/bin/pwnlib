@@ -1,0 +1,76 @@
+#!/bin/sh
+
+# Based on:
+# https://github.com/evilsocket/pwnagotchi/blob/master/builder/data/usr/bin/pwnlib
+
+set -eu
+
+# Starts monitor interface
+start_monitor_interface() {
+	if ! exists_interface "${PWNAGOTCHI_IFACE_MON:?}"; then
+		iw phy "${PWNAGOTCHI_IFACE_PHY:?}" interface add "${PWNAGOTCHI_IFACE_MON:?}" type monitor
+	fi
+	if ! is_interface_up "${PWNAGOTCHI_IFACE_MON:?}"; then
+		ip link set "${PWNAGOTCHI_IFACE_MON:?}" up
+	fi
+}
+
+# Stops monitor interface
+stop_monitor_interface() {
+	if exists_interface "${PWNAGOTCHI_IFACE_MON:?}"; then
+		ip link set "${PWNAGOTCHI_IFACE_MON:?}" down
+		iw dev "${PWNAGOTCHI_IFACE_MON:?}" del
+	fi
+}
+
+# Returns 0 if the specificed interface exists
+exists_interface() { test -e "/sys/class/net/${1:?}/operstate"; }
+
+# Returns 0 if the specificed interface is up
+is_interface_up() { exists_interface "${1:?}" && grep -Fxq 'up' "/sys/class/net/${1:?}/operstate"; }
+
+# Returns 0 if conditions for AUTO mode are met
+is_auto_mode() {
+	# Check override file first
+	if [ -f /root/.pwnagotchi-manual ]; then
+		# Remove the override file if found
+		rm -rf /root/.pwnagotchi-manual
+		return 1
+	fi
+
+	# Check override file first
+	if [ -f /root/.pwnagotchi-auto ]; then
+		# Remove the override file if found
+		rm -rf /root/.pwnagotchi-auto
+		return 0
+	fi
+
+	# If USB interface is up, we're in MANU
+	if is_interface_up "${PWNAGOTCHI_IFACE_USB:?}"; then
+		return 1
+	fi
+
+	# No override, but none of the interfaces is up -> AUTO
+	return 0
+}
+
+# Returns 0 if conditions for AUTO mode are met
+is_auto_mode_no_delete() {
+	# Check override file first
+	if [ -f /root/.pwnagotchi-manual ]; then
+		return 1
+	fi
+
+	# Check override file first
+	if [ -f /root/.pwnagotchi-auto ]; then
+		return 0
+	fi
+
+	# If USB interface is up, we're in MANU
+	if is_interface_up "${PWNAGOTCHI_IFACE_USB:?}"; then
+		return 1
+	fi
+
+	# No override, but none of the interfaces is up -> AUTO
+	return 0
+}

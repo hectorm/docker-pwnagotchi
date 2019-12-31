@@ -1,0 +1,5 @@
+#!/usr/lib/pwnagotchi/bin/python
+
+import pwnagotchi
+
+print(pwnagotchi.version)

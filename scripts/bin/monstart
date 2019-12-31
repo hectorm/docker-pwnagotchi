@@ -1,0 +1,8 @@
+#!/bin/sh
+
+set -eu
+
+# shellcheck source=./pwnlib
+. /usr/bin/pwnlib
+
+start_monitor_interface

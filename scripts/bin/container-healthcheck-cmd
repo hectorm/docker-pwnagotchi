@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -eu
+
+# Check Bettercap port
+if ! nc -zv 127.0.0.1 8081 >/dev/null 2>&1; then
+	>&2 printf '%s\n' 'Bettercap is not running'
+	exit 1
+fi
+
+# Check PwnGRID port
+if ! nc -zv 127.0.0.1 8666 >/dev/null 2>&1; then
+	>&2 printf '%s\n' 'PwnGRID is not running'
+	exit 1
+fi
+
+# Check Pwnagotchi port
+if ! nc -zv 127.0.0.1 8080 >/dev/null 2>&1; then
+	>&2 printf '%s\n' 'Pwnagotchi is not running'
+	exit 1
+fi
