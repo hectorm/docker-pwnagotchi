@@ -34,8 +34,8 @@
         "apt-get update",
         "apt-get dist-upgrade -y",
         "apt-mark hold firmware-brcm80211",
-        "apt-get purge -y dphys-swapfile nfs-common raspberrypi-net-mods triggerhappy unattended-upgrades wpasupplicant",
-        "apt-get install -y apt-transport-https ca-certificates curl gnupg htop i2c-tools openssh-server"
+        "apt-get purge -y nfs-common raspberrypi-net-mods triggerhappy unattended-upgrades wpasupplicant",
+        "apt-get install -y apt-transport-https ca-certificates curl dphys-swapfile gnupg htop i2c-tools openssh-server"
       ]
     },
     {
@@ -61,7 +61,7 @@
       "type": "shell",
       "inline": [
         "systemctl disable apt-daily.timer apt-daily-upgrade.timer bluetooth.service dhcpcd.service fake-hwclock.service",
-        "systemctl enable docker.service fstrim.timer ssh.service"
+        "systemctl enable docker.service dphys-swapfile.service fstrim.timer ssh.service"
       ]
     },
     {
