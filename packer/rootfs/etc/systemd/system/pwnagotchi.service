@@ -10,7 +10,7 @@ ExecStartPre=-/usr/bin/docker rm pwnagotchi
 ExecStart=/usr/bin/docker run \
 	--rm \
 	--name pwnagotchi \
-	--hostname pwnagotchi \
+	--hostname "%H" \
 	--log-opt max-size=32m \
 	--privileged --net host \
 	--env-file /etc/pwnagotchi.env \
