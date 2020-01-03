@@ -17,6 +17,7 @@ main:
       enabled: ${PWNAGOTCHI_PLUGIN_SESSION_STATS_ENABLED}
     auto-update:
       enabled: false
+  custom_plugins: /usr/local/lib/pwnagotchi/plugins/
 
 ui:
   web:
