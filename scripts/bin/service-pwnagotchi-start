@@ -16,12 +16,6 @@ if [ -f /etc/pwnagotchi/config.tmpl.yml ]; then
 	envsubst < /etc/pwnagotchi/config.tmpl.yml > /etc/pwnagotchi/config.yml
 fi
 
-# Create empty image file if it does not exist
-# (prevents flask exception on first run)
-if [ ! -f /root/pwnagotchi.png ]; then
-	touch /root/pwnagotchi.png
-fi
-
 # Fixes: https://github.com/piwheels/packages/issues/59
 if [ -f /usr/lib/arm-linux-gnueabihf/libatomic.so.1 ]; then
 	export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1

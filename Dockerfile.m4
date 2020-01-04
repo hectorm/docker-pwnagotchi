@@ -212,10 +212,14 @@ WORKDIR /tmp/pwnagotchi/
 RUN git clone "${PWNAGOTCHI_REMOTE:?}" ./
 RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
 RUN git submodule update --init --recursive
+# Remove installation step during setup
 RUN sed -ri '/^installer\(\)$/d' ./setup.py
-RUN sed -ri 's|^(DefaultPath) = ".+"$|\1 = "/root/"|' ./pwnagotchi/identity.py
-# Fixes: https://github.com/piwheels/packages/issues/66
+# Modify some hardcoded paths
+RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
+RUN sed -ri 's|^\s*(frame_path)\s*=.+$|\1 = "/tmp/pwnagotchi.png"|' ./pwnagotchi/ui/web/__init__.py
+# Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
 m4_ifelse(IS_RASPBIAN, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
+# Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
 RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install pycryptodome==3.9.4
