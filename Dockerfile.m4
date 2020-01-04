@@ -235,6 +235,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get install -y --no-install-recommends \
 		fbi \
 		fonts-dejavu \
+		gawk \
 		gettext-base \
 		iproute2 \
 		iw \
@@ -288,12 +289,19 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		openmpi-bin \
 		python3 \
 		python3-distutils \
-		runit \
+		systemd \
 		tcpdump \
-		tini \
 		wireless-tools \
 		m4_ifelse(IS_RASPBIAN, 1, [[libjasper1]]) \
 	&& rm -rf /var/lib/apt/lists/*
+
+# Remove default systemd unit dependencies
+RUN find \
+		/lib/systemd/system/*.target.wants/ \
+		/etc/systemd/system/*.target.wants/ \
+		-not -name 'systemd-tmpfiles-setup.service' \
+		-not -name 'systemd-journald.service' \
+		-mindepth 1 -print -delete
 
 # Copy Bettercap build
 COPY --from=build-bettercap /usr/bin/bettercap /usr/bin/bettercap
@@ -315,11 +323,12 @@ COPY ./config/pwnagotchi/ /etc/pwnagotchi/
 # Copy scripts
 COPY ./scripts/bin/ /usr/bin/
 
-# Copy services
-COPY --chown=root:root scripts/service/ /etc/sv/
-RUN find /etc/sv/ -type d -mindepth 1 -maxdepth 1 \
-		-exec sh -c 'ln -sv "${1}" /etc/service/' _ '{}' ';' \
-		-exec sh -c 'ln -sv /usr/bin/sv "/etc/init.d/${1##*/}"' _ '{}' ';'
+# Copy and enable services
+COPY --chown=root:root scripts/service/ /etc/systemd/system/
+RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
+
+# Replace multi-user target with container target
+RUN systemctl set-default container.target
 
 # Environment
 ENV PWNAGOTCHI_NAME=pwnagotchi
@@ -348,5 +357,5 @@ ENV PWNAGOTCHI_PERSONALITY_CHANNELS=[]
 HEALTHCHECK --start-period=30s --interval=10s --timeout=5s --retries=1 \
 CMD ["/usr/bin/container-healthcheck-cmd"]
 
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["/usr/bin/container-foreground-cmd"]
+STOPSIGNAL SIGRTMIN+3
+ENTRYPOINT ["/usr/bin/container-entrypoint-cmd"]

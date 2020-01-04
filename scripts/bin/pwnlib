@@ -5,6 +5,11 @@
 
 set -eu
 
+if [ -f /etc/profile.d/env.sh ]; then
+	# shellcheck disable=SC1091
+	. /etc/profile.d/env.sh
+fi
+
 # Starts monitor interface
 start_monitor_interface() {
 	if ! exists_interface "${PWNAGOTCHI_IFACE_MON:?}"; then

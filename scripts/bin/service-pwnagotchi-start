@@ -2,7 +2,7 @@
 
 set -eu
 
-# shellcheck source=../../../scripts/bin/pwnlib
+# shellcheck source=./pwnlib
 . /usr/bin/pwnlib
 
 # Wait for Bettercap
@@ -11,10 +11,9 @@ until nc -zv 127.0.0.1 8081 >/dev/null 2>&1; do sleep 1; done
 # Wait for PwnGRID
 until nc -zv 127.0.0.1 8666 >/dev/null 2>&1; do sleep 1; done
 
-# Fixes:
-# https://github.com/piwheels/packages/issues/59
-if [ -e /usr/lib/arm-linux-gnueabihf/libatomic.so.1 ]; then
-	export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+# Initialize Pwnagotchi config from template
+if [ -f /etc/pwnagotchi/config.tmpl.yml ]; then
+	envsubst < /etc/pwnagotchi/config.tmpl.yml > /etc/pwnagotchi/config.yml
 fi
 
 # Create empty image file if it does not exist
@@ -23,7 +22,11 @@ if [ ! -f /root/pwnagotchi.png ]; then
 	touch /root/pwnagotchi.png
 fi
 
-exec 2>&1
+# Fixes: https://github.com/piwheels/packages/issues/59
+if [ -f /usr/lib/arm-linux-gnueabihf/libatomic.so.1 ]; then
+	export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
+fi
+
 if is_auto_mode; then
 	exec pwnagotchi
 else

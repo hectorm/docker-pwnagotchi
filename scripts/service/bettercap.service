@@ -1,0 +1,12 @@
+[Unit]
+Description=Bettercap service
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/service-bettercap-start
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=container.target

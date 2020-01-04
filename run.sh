@@ -32,16 +32,19 @@ if containerExists "${CONTAINER_NAME:?}"; then
 fi
 
 printf -- '%s\n' "Creating \"${CONTAINER_NAME:?}\" container..."
-"${DOCKER:?}" run --detach \
+"${DOCKER:?}" run \
+	--tty --detach \
 	--name "${CONTAINER_NAME:?}" \
 	--hostname "${CONTAINER_NAME:?}" \
 	--restart on-failure:3 \
-	--log-opt max-size=32m \
 	--privileged --net host \
 	--env PWNAGOTCHI_IFACE_MON=wlp3s0 \
 	--env PWNAGOTCHI_DISPLAY_ENABLED=false \
 	--env PWNAGOTCHI_PLUGIN_GRID_ENABLED=false \
 	--env PWNAGOTCHI_PLUGIN_LED_ENABLED=false \
+	--mount type=tmpfs,dst=/run/,tmpfs-mode=0755 \
+	--mount type=tmpfs,dst=/tmp/,tmpfs-mode=1777 \
+	--mount type=bind,src=/sys/fs/cgroup/,dst=/sys/fs/cgroup/,ro \
 	"${IMAGE_NAME:?}" "$@" >/dev/null
 
 printf -- '%s\n\n' 'Done!'

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+set -eu
+
+# shellcheck source=./pwnlib
+. /usr/bin/pwnlib
+
+# Initialize Bettercap caplets from templates
+if [ -f /usr/local/share/bettercap/caplets/pwnagotchi-auto.tmpl.cap ]; then
+	envsubst < /usr/local/share/bettercap/caplets/pwnagotchi-auto.tmpl.cap > /usr/local/share/bettercap/caplets/pwnagotchi-auto.cap
+fi
+if [ -f /usr/local/share/bettercap/caplets/pwnagotchi-manual.tmpl.cap ]; then
+	envsubst < /usr/local/share/bettercap/caplets/pwnagotchi-manual.tmpl.cap > /usr/local/share/bettercap/caplets/pwnagotchi-manual.cap
+fi
+
+# Start monitor interface
+start_monitor_interface
+
+if is_auto_mode_no_delete; then
+	exec bettercap -no-colors -caplet pwnagotchi-auto -iface "${PWNAGOTCHI_IFACE_MON:?}"
+else
+	exec bettercap -no-colors -caplet pwnagotchi-manual -iface "${PWNAGOTCHI_IFACE_MON:?}"
+fi

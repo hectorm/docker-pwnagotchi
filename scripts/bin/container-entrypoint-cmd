@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -eu
+
+# Dump environment variables
+export-env > /etc/profile.d/env.sh
+
+# Start init system
+exec /sbin/init
