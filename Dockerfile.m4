@@ -329,6 +329,7 @@ COPY ./scripts/bin/ /usr/bin/
 
 # Copy and enable services
 COPY --chown=root:root scripts/service/ /etc/systemd/system/
+RUN chmod 644 /etc/systemd/system/*.target /etc/systemd/system/*.service
 RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
 
 # Replace multi-user target with container target
