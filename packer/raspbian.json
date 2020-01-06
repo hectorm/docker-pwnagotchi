@@ -9,7 +9,7 @@
     "iso_checksum_type": "sha256",
     "image_type": "raspberrypi",
     "output_filename": "raspbian.img",
-    "target_image_size": 4294967296
+    "target_image_size": 5368709120
   }],
   "provisioners": [
     {
@@ -45,6 +45,12 @@
         "curl --proto '=https' --tlsv1.2 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -",
         "apt-get update",
         "apt-get install -y --no-install-recommends docker-ce docker-ce-cli"
+      ]
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "rpi-nexmon-update"
       ]
     },
     {

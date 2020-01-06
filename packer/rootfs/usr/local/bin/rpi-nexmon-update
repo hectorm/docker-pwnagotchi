@@ -11,7 +11,13 @@ NEXMON_FIRMWARE=7_45_41_46
 # Install dependencies
 apt-get update
 apt-get install -y autoconf automake automake-1.15 bison build-essential flex gawk git libtool pkgconf
-apt-get install -y libfl-dev libgmp-dev libgmp3-dev qpdf raspberrypi-kernel-headers texinfo
+apt-get install -y debianutils libfl-dev libgmp-dev libgmp3-dev qpdf raspberrypi-kernel-headers texinfo
+
+if ischroot; then
+	KERNEL_VERSION=$(dpkg -L raspberrypi-kernel | grep -Eom1 '4\.19\.[0-9]+\+')
+else
+	KERNEL_VERSION=$(uname -r)
+fi
 
 # Create source directory
 rm -rf "${NEXMON_DIR:?}"
@@ -47,9 +53,11 @@ source setup_env.sh && make
 
 # Build and install firmware
 cd "${NEXMON_DIR:?}"/patches/"${NEXMON_CHIP:?}"/"${NEXMON_FIRMWARE:?}"/nexmon/
-make && make install-firmware
-install -Dm 644 ./*/brcmfmac.ko /lib/modules/"$(uname -r)"/updates/brcmfmac.ko
-depmod
+make ./brcmfmac43430-sdio.bin
+make -C /lib/modules/"${KERNEL_VERSION:?}"/build M="${PWD:?}"/brcmfmac_4.19.y-nexmon -j2
+install -Dm 644 ./brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
+install -Dm 644 ./brcmfmac_4.19.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_VERSION:?}"/updates/brcmfmac.ko
+depmod "${KERNEL_VERSION:?}"
 
 # Build and install nexutil
 cd "${NEXMON_DIR:?}"/utilities/nexutil/
