@@ -38,7 +38,6 @@ printf -- '%s\n' "Creating \"${CONTAINER_NAME:?}\" container..."
 	--hostname "${CONTAINER_NAME:?}" \
 	--restart on-failure:3 \
 	--privileged --net host \
-	--env PWNAGOTCHI_IFACE_MON=wlp3s0 \
 	--env PWNAGOTCHI_DISPLAY_ENABLED=false \
 	--env PWNAGOTCHI_PLUGIN_GRID_ENABLED=false \
 	--env PWNAGOTCHI_PLUGIN_LED_ENABLED=false \
