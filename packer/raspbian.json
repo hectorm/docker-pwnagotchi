@@ -9,7 +9,7 @@
     "iso_checksum_type": "sha256",
     "image_type": "raspberrypi",
     "output_filename": "raspbian.img",
-    "target_image_size": 5368709120
+    "target_image_size": 4294967296
   }],
   "provisioners": [
     {
