@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -eu
+
+NEXMON_TREEISH=4.19-bcm43430a1
+NEXMON_REMOTE=https://github.com/DrSchottky/nexmon.git
+NEXMON_DIR=/usr/local/src/nexmon/
+NEXMON_CHIP=bcm43430a1
+NEXMON_FIRMWARE=7_45_41_46
+
+# Install dependencies
+apt-get update
+apt-get install -y autoconf automake automake-1.15 bison build-essential flex gawk git libtool pkgconf
+apt-get install -y libfl-dev libgmp-dev libgmp3-dev qpdf raspberrypi-kernel-headers texinfo
+
+# Create source directory
+rm -rf "${NEXMON_DIR:?}"
+mkdir -p "${NEXMON_DIR:?}"
+
+# Clone project
+cd "${NEXMON_DIR:?}"
+git clone "${NEXMON_REMOTE:?}" ./
+git checkout "${NEXMON_TREEISH:?}"
+git submodule update --init --recursive
+
+# Disable statistics
+touch ./DISABLE_STATISTICS
+
+# Build libisl if not installed
+if [ ! -e /usr/lib/arm-linux-gnueabihf/libisl.so.10 ]; then
+	cd "${NEXMON_DIR:?}"/buildtools/isl-0.10/
+	./configure && make -j"$(nproc)" && make install
+	ln -sf /usr/local/lib/libisl.so /usr/lib/arm-linux-gnueabihf/libisl.so.10
+fi
+
+# Build libmpfr if not installed
+if [ ! -e /usr/lib/arm-linux-gnueabihf/libmpfr.so.4 ]; then
+	cd "${NEXMON_DIR:?}"/buildtools/mpfr-3.1.4/
+	./configure && make -j"$(nproc)" && make install
+	ln -sf /usr/local/lib/libmpfr.so /usr/lib/arm-linux-gnueabihf/libmpfr.so.4
+fi
+
+# Setup build environment
+cd "${NEXMON_DIR:?}"
+# shellcheck disable=SC1091
+source setup_env.sh && make
+
+# Build and install firmware
+cd "${NEXMON_DIR:?}"/patches/"${NEXMON_CHIP:?}"/"${NEXMON_FIRMWARE:?}"/nexmon/
+make && make install-firmware
+install -Dm 644 ./*/brcmfmac.ko /lib/modules/"$(uname -r)"/updates/brcmfmac.ko
+depmod
+
+# Build and install nexutil
+cd "${NEXMON_DIR:?}"/utilities/nexutil/
+make && make install

@@ -41,16 +41,6 @@
     {
       "type": "shell",
       "inline": [
-        "printf '%s\n' 'deb [arch=armhf] http://http.re4son-kernel.com/re4son/ kali-pi main' > /etc/apt/sources.list.d/re4son.list",
-        "curl --proto '=https' --tlsv1.3 -sSf 'https://re4son-kernel.com/keys/http/archive-key.asc' | apt-key add -",
-        "apt-get update",
-        "apt-get install -y --no-install-recommends kalipi-bootloader kalipi-kernel kalipi-kernel-headers kalipi-re4son-firmware",
-        "apt-get install -y --no-install-recommends libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0"
-      ]
-    },
-    {
-      "type": "shell",
-      "inline": [
         "printf '%s\n' 'deb [arch=armhf] https://download.docker.com/linux/raspbian/ buster stable' > /etc/apt/sources.list.d/docker.list",
         "curl --proto '=https' --tlsv1.2 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -",
         "apt-get update",
