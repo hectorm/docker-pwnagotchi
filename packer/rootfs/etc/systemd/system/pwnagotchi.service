@@ -9,8 +9,10 @@ ExecStartPre=-/bin/mkdir /var/lib/pwnagotchi/
 ExecStartPre=-/usr/bin/docker rm "%N"
 ExecStart=/usr/bin/docker run \
 	--rm --tty \
-	--name "%N" --hostname "%H" \
+	--name "%N" \
+	--hostname "%H" \
 	--privileged --net host \
+	--env PWNAGOTCHI_NAME="%H" \
 	--env-file /etc/pwnagotchi.env \
 	--mount type=tmpfs,dst=/run/,tmpfs-mode=0755 \
 	--mount type=tmpfs,dst=/tmp/,tmpfs-mode=1777 \
