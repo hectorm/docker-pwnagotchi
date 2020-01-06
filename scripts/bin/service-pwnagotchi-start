@@ -21,7 +21,7 @@ if [ -f /usr/lib/arm-linux-gnueabihf/libatomic.so.1 ]; then
 	export LD_PRELOAD=/usr/lib/arm-linux-gnueabihf/libatomic.so.1
 fi
 
-if is_auto_mode; then
+if is_auto_mode 'delete'; then
 	exec pwnagotchi
 else
 	exec pwnagotchi --manual
