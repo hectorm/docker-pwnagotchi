@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 tail -f -n300 /var/log/pwn* \
 	| sed --unbuffered 's/,[[:digit:]]\{3\}\]//g' \
 	| cut -d' ' -f2-

@@ -2,6 +2,7 @@ main:
   name: ${PWNAGOTCHI_NAME}
   lang: ${PWNAGOTCHI_LANG}
   iface: ${PWNAGOTCHI_IFACE_MON}
+  mon_max_blind_epochs: ${PWNAGOTCHI_MAX_BLIND_EPOCHS}
   whitelist: ${PWNAGOTCHI_WHITELIST}
   filter: ${PWNAGOTCHI_FILTER}
   plugins:

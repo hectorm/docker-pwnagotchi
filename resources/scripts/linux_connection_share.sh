@@ -3,6 +3,8 @@
 # Based on:
 # https://github.com/evilsocket/pwnagotchi/blob/master/scripts/linux_connection_share.sh
 
+set -eu
+
 # Name of the ethernet gadget interface on the host
 USB_IFACE=${1:-enp0s20u2}
 USB_IFACE_IP=10.3.14.1
