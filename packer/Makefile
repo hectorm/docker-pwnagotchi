@@ -6,7 +6,7 @@ SHELL := /bin/sh
 PACKER := $(shell command -v packer 2>/dev/null)
 
 PACKER_CACHE_DIR := ./packer_cache/
-PACKER_TEMPLATE := ./raspbian.json
+PACKER_TEMPLATE := ./raspbian.pkr.hcl
 PACKER_IMG := ./raspbian.img
 
 ##################################################
