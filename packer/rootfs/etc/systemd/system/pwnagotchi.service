@@ -6,6 +6,7 @@ After=docker.service
 [Service]
 Type=simple
 ExecStartPre=-/bin/mkdir /var/lib/pwnagotchi/
+ExecStartPre=-/bin/mkdir /var/log/pwnagotchi/
 ExecStartPre=-/usr/bin/docker rm pwnagotchi
 ExecStart=/usr/bin/docker run \
 	--name pwnagotchi --hostname "%H" \
@@ -16,6 +17,7 @@ ExecStart=/usr/bin/docker run \
 	--mount type=tmpfs,dst=/tmp/,tmpfs-mode=1777 \
 	--mount type=bind,src=/sys/fs/cgroup/,dst=/sys/fs/cgroup/,ro \
 	--mount type=bind,src=/var/lib/pwnagotchi/,dst=/root/ \
+	--mount type=bind,src=/var/log/pwnagotchi/,dst=/var/log/journal/ \
 	docker.io/hectormolinero/pwnagotchi:latest
 ExecStop=/usr/bin/docker stop pwnagotchi
 ExecStopPost=/usr/bin/reload-brcmfmac-driver

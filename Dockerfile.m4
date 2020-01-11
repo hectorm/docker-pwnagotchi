@@ -304,8 +304,11 @@ RUN find \
 		/lib/systemd/system/*.target.wants/ \
 		/etc/systemd/system/*.target.wants/ \
 		-not -name 'systemd-tmpfiles-setup.service' \
-		-not -name 'systemd-journald.service' \
+		-not -name 'systemd-journal*' \
 		-mindepth 1 -print -delete
+
+# Copy systemd config
+COPY ./config/systemd/ /etc/systemd/
 
 # Copy Bettercap build
 COPY --from=build-bettercap /usr/bin/bettercap /usr/bin/bettercap
