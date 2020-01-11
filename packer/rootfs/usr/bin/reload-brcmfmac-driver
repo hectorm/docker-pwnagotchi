@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Workaround for:
+# https://github.com/evilsocket/pwnagotchi/issues/267
+
+set -eu
+
+reload_driver() {
+	printf '%s\n' 'Reloading brcmfmac driver...'
+
+	modprobe -rv brcmfmac || return 1; sleep 3
+	modprobe -v brcmfmac  || return 1; sleep 3
+
+	printf 'mmc1:0001:1' > /sys/bus/sdio/drivers/brcmfmac/unbind || return 1; sleep 3
+	printf 'mmc1:0001:2' > /sys/bus/sdio/drivers/brcmfmac/unbind || return 1; sleep 3
+	printf 'mmc1:0001:1' > /sys/bus/sdio/drivers/brcmfmac/bind   || return 1; sleep 3
+	printf 'mmc1:0001:2' > /sys/bus/sdio/drivers/brcmfmac/bind   || return 1; sleep 3
+}
+
+t=0; tmax=3
+until [ "${t:?}" -ge "${tmax:?}" ] || reload_driver; do
+	t=$((t+1)); sleep 10
+done
