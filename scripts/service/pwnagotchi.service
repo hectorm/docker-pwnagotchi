@@ -10,4 +10,4 @@ Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=container.target
+WantedBy=default.target
