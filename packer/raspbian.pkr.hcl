@@ -42,7 +42,7 @@ build {
       "apt-get update",
       "apt-get dist-upgrade -y",
       "apt-mark hold firmware-brcm80211",
-      "apt-get purge -y nfs-common raspberrypi-net-mods triggerhappy unattended-upgrades wpasupplicant",
+      "apt-get purge -y bluez nfs-common raspberrypi-net-mods triggerhappy unattended-upgrades wpasupplicant",
       "apt-get install -y --no-install-recommends apt-transport-https ca-certificates crda curl dnsmasq dphys-swapfile gnupg htop i2c-tools openssh-server"
     ]
   }
@@ -76,7 +76,7 @@ build {
 
   provisioner "shell" {
     inline = [
-      "systemctl disable apt-daily.timer apt-daily-upgrade.timer bluetooth.service dhcpcd.service fake-hwclock.service",
+      "systemctl disable apt-daily.timer apt-daily-upgrade.timer dhcpcd.service fake-hwclock.service",
       "systemctl enable dnsmasq.service docker.service dphys-swapfile.service fstrim.timer ssh.service"
     ]
   }
