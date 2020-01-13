@@ -43,7 +43,7 @@ build {
       "apt-get dist-upgrade -y",
       "apt-mark hold firmware-brcm80211",
       "apt-get purge -y nfs-common raspberrypi-net-mods triggerhappy unattended-upgrades wpasupplicant",
-      "apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl dnsmasq dphys-swapfile gnupg htop i2c-tools openssh-server"
+      "apt-get install -y --no-install-recommends apt-transport-https ca-certificates crda curl dnsmasq dphys-swapfile gnupg htop i2c-tools openssh-server"
     ]
   }
 
