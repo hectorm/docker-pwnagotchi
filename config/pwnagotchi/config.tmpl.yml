@@ -18,10 +18,14 @@ main:
       enabled: ${PWNAGOTCHI_PLUGIN_SESSION_STATS_ENABLED}
     auto-update:
       enabled: false
+    webcfg:
+      enabled: false
   custom_plugins: /usr/local/lib/pwnagotchi/plugins/
 
 ui:
   web:
+    enabled: ${PWNAGOTCHI_WEB_ENABLED}
+    address: ${PWNAGOTCHI_WEB_ADDRESS}
     username: ${PWNAGOTCHI_USERNAME}
     password: ${PWNAGOTCHI_PASSWORD}
   display:
