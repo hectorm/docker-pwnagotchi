@@ -205,24 +205,21 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=v1.4.3
+ARG PWNAGOTCHI_TREEISH=23616095baa043fc8029bde327e175d5f4e4afe7
 ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
 RUN mkdir /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
 RUN git clone "${PWNAGOTCHI_REMOTE:?}" ./
 RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
 RUN git submodule update --init --recursive
-# Remove installation step during setup
-RUN sed -ri '/^installer\(\)$/d' ./setup.py
 # Modify some hardcoded paths
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
-RUN sed -ri 's|^\s*(frame_path)\s*=.+$|\1 = "/tmp/pwnagotchi.png"|' ./pwnagotchi/ui/web/__init__.py
 # Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
 m4_ifelse(IS_RASPBIAN, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
 # Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
+ENV PWNAGOTCHI_ENABLE_INSTALLER=false
 RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install pycryptodome==3.9.4
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install -r ./requirements.txt
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
@@ -346,9 +343,9 @@ ENV PWNAGOTCHI_IFACE_MON=mon0
 ENV PWNAGOTCHI_IFACE_USB=usb0
 ENV PWNAGOTCHI_MAX_BLIND_EPOCHS=10
 ENV PWNAGOTCHI_WHITELIST=[]
-ENV PWNAGOTCHI_FILTER=null
+ENV PWNAGOTCHI_FILTER=
 ENV PWNAGOTCHI_WEB_ENABLED=true
-ENV PWNAGOTCHI_WEB_ADDRESS=127.0.0.1
+ENV PWNAGOTCHI_WEB_ADDRESS=0.0.0.0
 ENV PWNAGOTCHI_DISPLAY_ENABLED=true
 ENV PWNAGOTCHI_DISPLAY_ROTATION=180
 ENV PWNAGOTCHI_DISPLAY_TYPE=waveshare_2

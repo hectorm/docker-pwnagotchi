@@ -5,12 +5,12 @@ set -eu
 # shellcheck source=./pwnlib
 . /usr/bin/pwnlib
 
-# Initialize Bettercap caplets from templates
-if [ -f /usr/local/share/bettercap/caplets/pwnagotchi-auto.tmpl.cap ]; then
-	envsubst < /usr/local/share/bettercap/caplets/pwnagotchi-auto.tmpl.cap > /usr/local/share/bettercap/caplets/pwnagotchi-auto.cap
+# Replace environment variables in the Bettercap caplets
+if [ -w /usr/local/share/bettercap/caplets/pwnagotchi-auto.cap ]; then
+	envsubst2 -i inplace /usr/local/share/bettercap/caplets/pwnagotchi-auto.cap
 fi
-if [ -f /usr/local/share/bettercap/caplets/pwnagotchi-manual.tmpl.cap ]; then
-	envsubst < /usr/local/share/bettercap/caplets/pwnagotchi-manual.tmpl.cap > /usr/local/share/bettercap/caplets/pwnagotchi-manual.cap
+if [ -w /usr/local/share/bettercap/caplets/pwnagotchi-manual.cap ]; then
+	envsubst2 -i inplace /usr/local/share/bettercap/caplets/pwnagotchi-manual.cap
 fi
 
 # Start monitor interface

@@ -11,9 +11,9 @@ until nc -zv 127.0.0.1 8081 >/dev/null 2>&1; do sleep 1; done
 # Wait for PwnGRID
 until nc -zv 127.0.0.1 8666 >/dev/null 2>&1; do sleep 1; done
 
-# Initialize Pwnagotchi config from template
-if [ -f /etc/pwnagotchi/config.tmpl.yml ]; then
-	envsubst < /etc/pwnagotchi/config.tmpl.yml > /etc/pwnagotchi/config.yml
+# Replace environment variables in the Pwnagotchi configuration
+if [ -w /etc/pwnagotchi/config.toml ]; then
+	envsubst2 -i inplace /etc/pwnagotchi/config.toml
 fi
 
 # Fixes: https://github.com/piwheels/packages/issues/59

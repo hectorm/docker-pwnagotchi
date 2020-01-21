@@ -1,0 +1,53 @@
+# Main
+main.name = "${PWNAGOTCHI_NAME}"
+main.lang = "${PWNAGOTCHI_LANG}"
+main.iface = "${PWNAGOTCHI_IFACE_MON}"
+main.mon_max_blind_epochs = ${PWNAGOTCHI_MAX_BLIND_EPOCHS}
+main.whitelist = ${PWNAGOTCHI_WHITELIST}
+main.filter = "${PWNAGOTCHI_FILTER}"
+main.custom_plugins = "/usr/local/lib/pwnagotchi/plugins/"
+
+# Logs
+main.log.path = "" # Print only to console
+main.log.rotation.enabled = false
+
+# Grid plugin
+main.plugins.grid.enabled = ${PWNAGOTCHI_PLUGIN_GRID_ENABLED}
+main.plugins.grid.report = ${PWNAGOTCHI_PLUGIN_GRID_REPORT}
+main.plugins.grid.exclude = ${PWNAGOTCHI_PLUGIN_GRID_EXCLUDE}
+
+# Led plugin
+main.plugins.led.enabled = ${PWNAGOTCHI_PLUGIN_LED_ENABLED}
+
+# Memtemp plugin
+main.plugins.memtemp.enabled = ${PWNAGOTCHI_PLUGIN_MEMTEMP_ENABLED}
+
+# Session stats plugin
+main.plugins.session-stats.enabled = ${PWNAGOTCHI_PLUGIN_MEMTEMP_ENABLED}
+
+# Auto update plugin
+main.plugins.auto-update.enabled = false
+
+# Webcfg plugin
+main.plugins.webcfg.enabled = false
+
+# Web UI
+ui.web.enabled = ${PWNAGOTCHI_WEB_ENABLED}
+ui.web.address = "${PWNAGOTCHI_WEB_ADDRESS}"
+ui.web.username = "${PWNAGOTCHI_USERNAME}"
+ui.web.password = """${PWNAGOTCHI_PASSWORD}"""
+
+# Display UI
+ui.display.enabled = ${PWNAGOTCHI_DISPLAY_ENABLED}
+ui.display.rotation = ${PWNAGOTCHI_DISPLAY_ROTATION}
+ui.display.type = "${PWNAGOTCHI_DISPLAY_TYPE}"
+
+# Bettercap
+bettercap.username = "${PWNAGOTCHI_USERNAME}"
+bettercap.password = """${PWNAGOTCHI_PASSWORD}"""
+
+# Personality
+personality.advertise = ${PWNAGOTCHI_PERSONALITY_ADVERTISE}
+personality.deauth = ${PWNAGOTCHI_PERSONALITY_DEAUTH}
+personality.associate = ${PWNAGOTCHI_PERSONALITY_ASSOCIATE}
+personality.channels = ${PWNAGOTCHI_PERSONALITY_CHANNELS}
