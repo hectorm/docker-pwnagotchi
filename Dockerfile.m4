@@ -220,8 +220,8 @@ m4_ifelse(IS_RASPBIAN, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
 RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install -r ./requirements.txt
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install ./
+RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install --prefer-binary -r ./requirements.txt
+RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install --no-deps ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
 
 ##################################################
