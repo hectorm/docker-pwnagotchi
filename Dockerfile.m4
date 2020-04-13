@@ -106,7 +106,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Bettercap
-ARG BETTERCAP_TREEISH=v2.27
+ARG BETTERCAP_TREEISH=v2.27.1
 ARG BETTERCAP_REMOTE=https://github.com/bettercap/bettercap.git
 RUN mkdir /tmp/bettercap/
 WORKDIR /tmp/bettercap/
