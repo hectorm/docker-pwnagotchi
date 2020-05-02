@@ -23,7 +23,7 @@ main.plugins.led.enabled = ${PWNAGOTCHI_PLUGIN_LED_ENABLED}
 main.plugins.memtemp.enabled = ${PWNAGOTCHI_PLUGIN_MEMTEMP_ENABLED}
 
 # Session stats plugin
-main.plugins.session-stats.enabled = ${PWNAGOTCHI_PLUGIN_MEMTEMP_ENABLED}
+main.plugins.session-stats.enabled = ${PWNAGOTCHI_PLUGIN_SESSION_STATS_ENABLED}
 
 # Auto update plugin
 main.plugins.auto-update.enabled = false
