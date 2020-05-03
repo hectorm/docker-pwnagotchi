@@ -22,14 +22,14 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Setup locale
-RUN printf '%s\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen
-RUN localedef -c -i en_US -f UTF-8 en_US.UTF-8 ||:
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+RUN printf '%s\n' "${LANG:?} UTF-8" > /etc/locale.gen
+RUN localedef -c -i "${LANG%%.*}" -f UTF-8 "${LANG:?}" ||:
 
 # Setup timezone
 ENV TZ=UTC
-RUN ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
 RUN printf '%s\n' "${TZ:?}" > /etc/timezone
+RUN ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
 
 ##################################################
 ## "build-base" stage

@@ -3,7 +3,7 @@
 set -eu
 
 # Dump environment variables
-export-env > /etc/profile.d/env.sh
+env | grep -Ev '^(PWD|HOME|USER|USERNAME|SHELL|TERM|SHLVL)=' | sort > /etc/environment
 
 # Start init system
 exec /sbin/init
