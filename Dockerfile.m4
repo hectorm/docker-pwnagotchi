@@ -305,30 +305,30 @@ RUN find \
 		-mindepth 1 -print -delete
 
 # Copy systemd config
-COPY ./config/systemd/ /etc/systemd/
+COPY --chown=root:root ./config/systemd/ /etc/systemd/
 
 # Copy Bettercap build
-COPY --from=build-bettercap /usr/bin/bettercap /usr/bin/bettercap
-COPY --from=build-bettercap /usr/local/share/bettercap/ /usr/local/share/bettercap/
+COPY --from=build-bettercap --chown=root:root /usr/bin/bettercap /usr/bin/bettercap
+COPY --from=build-bettercap --chown=root:root /usr/local/share/bettercap/ /usr/local/share/bettercap/
 
 # Copy Bettercap caplets
-COPY ./config/bettercap/caplets/ /usr/local/share/bettercap/caplets/
+COPY --chown=root:root ./config/bettercap/caplets/ /usr/local/share/bettercap/caplets/
 
 # Copy PwnGRID build
-COPY --from=build-pwngrid /usr/bin/pwngrid /usr/bin/pwngrid
+COPY --from=build-pwngrid --chown=root:root /usr/bin/pwngrid /usr/bin/pwngrid
 
 # Copy Pwnagotchi build
-COPY --from=build-pwnagotchi /usr/lib/pwnagotchi/ /usr/lib/pwnagotchi/
+COPY --from=build-pwnagotchi --chown=root:root /usr/lib/pwnagotchi/ /usr/lib/pwnagotchi/
 RUN ln -s /usr/lib/pwnagotchi/bin/pwnagotchi /usr/bin/pwnagotchi
 
 # Copy Pwnagotchi config
-COPY ./config/pwnagotchi/ /etc/pwnagotchi/
+COPY --chown=root:root ./config/pwnagotchi/ /etc/pwnagotchi/
 
 # Copy scripts
-COPY ./scripts/bin/ /usr/bin/
+COPY --chown=root:root ./scripts/bin/ /usr/bin/
 
 # Copy and enable services
-COPY ./scripts/service/ /etc/systemd/system/
+COPY --chown=root:root ./scripts/service/ /etc/systemd/system/
 RUN chmod 644 /etc/systemd/system/*.target /etc/systemd/system/*.service
 RUN systemctl set-default container.target
 RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
