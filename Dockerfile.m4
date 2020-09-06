@@ -23,13 +23,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 
 # Setup locale
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
-RUN printf '%s\n' "${LANG:?} UTF-8" > /etc/locale.gen
-RUN localedef -c -i "${LANG%%.*}" -f UTF-8 "${LANG:?}" ||:
+RUN printf '%s\n' "${LANG:?} UTF-8" > /etc/locale.gen \
+	&& localedef -c -i "${LANG%%.*}" -f UTF-8 "${LANG:?}" ||:
 
 # Setup timezone
 ENV TZ=UTC
-RUN printf '%s\n' "${TZ:?}" > /etc/timezone
-RUN ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
+RUN printf '%s\n' "${TZ:?}" > /etc/timezone \
+	&& ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
 
 ##################################################
 ## "build-base" stage
