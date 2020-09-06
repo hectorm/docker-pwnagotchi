@@ -1,6 +1,6 @@
 m4_changequote([[, ]])
 
-m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[raspios]]), [[-1]],
+m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[rpi]]), [[-1]],
 	[[m4_define([[IS_RASPIOS]], 0)]],
 	[[m4_define([[IS_RASPIOS]], 1)]]
 )
