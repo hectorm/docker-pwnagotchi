@@ -40,13 +40,9 @@ build {
       <<EOF
         apt-mark hold \
           firmware-brcm80211
-        apt-get purge -y \
-          bluez \
-          nfs-common \
-          raspberrypi-net-mods \
-          triggerhappy \
-          unattended-upgrades \
-          wpasupplicant
+      EOF
+      ,
+      <<EOF
         apt-get install -y \
           apt-transport-https \
           ca-certificates \
@@ -58,6 +54,17 @@ build {
           htop \
           i2c-tools \
           openssh-server
+      EOF
+      ,
+      <<EOF
+        apt-get purge -y \
+          bluez \
+          nfs-common \
+          raspberrypi-net-mods \
+          triggerhappy \
+          unattended-upgrades \
+          wpasupplicant
+        apt-get autoremove -y
       EOF
       ,
       <<EOF
