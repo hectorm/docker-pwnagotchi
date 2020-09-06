@@ -5,9 +5,9 @@ SHELL := /bin/sh
 
 PACKER := $(shell command -v packer 2>/dev/null)
 
+PACKER_WORK_DIR := ./
 PACKER_CACHE_DIR := ./packer_cache/
-PACKER_TEMPLATE := ./raspbian.pkr.hcl
-PACKER_IMG := ./raspbian.img
+PACKER_IMG := ./dist/raspios.img
 
 ##################################################
 ## "all" target
@@ -24,7 +24,7 @@ all: build
 build: $(PACKER_IMG)
 
 $(PACKER_IMG):
-	'$(PACKER)' build '$(PACKER_TEMPLATE)'
+	'$(PACKER)' build '$(PACKER_WORK_DIR)'
 
 ##################################################
 ## "clean" target

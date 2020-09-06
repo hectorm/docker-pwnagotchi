@@ -1,8 +1,8 @@
 m4_changequote([[, ]])
 
-m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[raspbian]]), [[-1]],
-	[[m4_define([[IS_RASPBIAN]], 0)]],
-	[[m4_define([[IS_RASPBIAN]], 1)]]
+m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[raspios]]), [[-1]],
+	[[m4_define([[IS_RASPIOS]], 0)]],
+	[[m4_define([[IS_RASPIOS]], 1)]]
 )
 
 ##################################################
@@ -66,7 +66,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV PIP_NO_CACHE_DIR=0
-m4_ifelse(IS_RASPBIAN, 1, [[ENV PIP_EXTRA_INDEX_URL=https://www.piwheels.org/simple]])
+m4_ifelse(IS_RASPIOS, 1, [[ENV PIP_EXTRA_INDEX_URL=https://www.piwheels.org/simple]])
 
 RUN python3 --version
 
@@ -201,7 +201,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		libvpx-dev \
 		libwebp-dev \
 		libzstd-dev \
-		m4_ifelse(IS_RASPBIAN, 1, [[libjasper-dev]]) \
+		m4_ifelse(IS_RASPIOS, 1, [[libjasper-dev]]) \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
@@ -215,7 +215,7 @@ RUN git submodule update --init --recursive
 # Modify some hardcoded paths
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
 # Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
-m4_ifelse(IS_RASPBIAN, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
+m4_ifelse(IS_RASPIOS, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
 # Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
@@ -293,7 +293,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		systemd \
 		tcpdump \
 		wireless-tools \
-		m4_ifelse(IS_RASPBIAN, 1, [[libjasper1]]) \
+		m4_ifelse(IS_RASPIOS, 1, [[libjasper1]]) \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Remove default systemd unit dependencies

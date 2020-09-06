@@ -52,17 +52,17 @@ build:images:generic-amd64:
   extends: '.build:images:cross'
   variables: {ARCH: 'generic-amd64'}
 
-build:images:raspbian-arm64v8:
+build:images:raspios-arm64v8:
   extends: '.build:images:cross'
-  variables: {ARCH: 'raspbian-arm64v8'}
+  variables: {ARCH: 'raspios-arm64v8'}
 
-build:images:raspbian-arm32v7:
+build:images:raspios-arm32v7:
   extends: '.build:images:cross'
-  variables: {ARCH: 'raspbian-arm32v7'}
+  variables: {ARCH: 'raspios-arm32v7'}
 
-build:images:raspbian-arm32v6:
+build:images:raspios-arm32v6:
   extends: '.build:images:cross'
-  variables: {ARCH: 'raspbian-arm32v6'}
+  variables: {ARCH: 'raspios-arm32v6'}
 
 .push:images:cross:
   stage: 'push:images'
@@ -78,24 +78,24 @@ push:images:generic-amd64:
   dependencies: ['build:images:generic-amd64']
   variables: {ARCH: 'generic-amd64'}
 
-push:images:raspbian-arm64v8:
+push:images:raspios-arm64v8:
   extends: '.push:images:cross'
-  dependencies: ['build:images:raspbian-arm64v8']
-  variables: {ARCH: 'raspbian-arm64v8'}
+  dependencies: ['build:images:raspios-arm64v8']
+  variables: {ARCH: 'raspios-arm64v8'}
 
-push:images:raspbian-arm32v7:
+push:images:raspios-arm32v7:
   extends: '.push:images:cross'
-  dependencies: ['build:images:raspbian-arm32v7']
-  variables: {ARCH: 'raspbian-arm32v7'}
+  dependencies: ['build:images:raspios-arm32v7']
+  variables: {ARCH: 'raspios-arm32v7'}
 
-push:images:raspbian-arm32v6:
+push:images:raspios-arm32v6:
   extends: '.push:images:cross'
-  dependencies: ['build:images:raspbian-arm32v6']
-  variables: {ARCH: 'raspbian-arm32v6'}
+  dependencies: ['build:images:raspios-arm32v6']
+  variables: {ARCH: 'raspios-arm32v6'}
 
 push:manifests:cross:
   stage: 'push:manifests'
-  dependencies: ['push:images:generic-amd64', 'push:images:raspbian-arm64v8', 'push:images:raspbian-arm32v7', 'push:images:raspbian-arm32v6']
+  dependencies: ['push:images:generic-amd64', 'push:images:raspios-arm64v8', 'push:images:raspios-arm32v7', 'push:images:raspios-arm32v6']
   only: [*regex_version]
   variables:
     DOCKER_CLI_EXPERIMENTAL: 'enabled'

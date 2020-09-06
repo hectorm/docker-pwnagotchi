@@ -1,6 +1,6 @@
 build {
   sources = [
-    "source.arm-image.raspbian"
+    "source.arm-image.raspios"
   ]
 
   provisioner "file" {
@@ -11,6 +11,8 @@ build {
 
   provisioner "shell" {
     environment_vars = [
+      "LANG=en_US.UTF-8",
+      "LC_ALL=en_US.UTF-8",
       "DPKG_FORCE=confold",
       "DEBIAN_FRONTEND=noninteractive"
     ]
