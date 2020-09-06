@@ -83,7 +83,7 @@ build {
       ,
       <<EOF
         printf '%s\n' 'deb [arch=armhf] https://download.docker.com/linux/raspbian/ buster stable' > /etc/apt/sources.list.d/docker.list
-        curl --proto '=https' --tlsv1.2 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
+        curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
         apt-get update && apt-get install -y --no-install-recommends docker-ce
       EOF
       ,
