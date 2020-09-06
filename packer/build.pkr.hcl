@@ -102,8 +102,9 @@ build {
       EOF
       ,
       <<EOF
-        rm -f /etc/ssh/ssh_host*_key*
-        rm -rf /var/lib/apt/lists/*
+        rm -f /etc/ssh/ssh_host_*key*
+        find /var/lib/apt/lists/ -mindepth 1 -delete
+        find / -type f -regex '.+\.\(dpkg\|ucf\)-\(old\|new\|dist\)' -ignore_readdir_race -delete ||:
       EOF
     ]
   }
