@@ -1,1 +1,1 @@
-console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh modules-load=dwc2,g_ether g_ether.host_addr=ab:c3:98:f9:76:d0 g_ether.dev_addr=a3:35:e2:f2:58:b7
+console=serial0,115200 console=tty1 root=PARTUUID=907af7d0-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait quiet init=/usr/lib/raspi-config/init_resize.sh modules-load=dwc2,g_ether g_ether.host_addr=ab:c3:98:f9:76:d0 g_ether.dev_addr=a3:35:e2:f2:58:b7
