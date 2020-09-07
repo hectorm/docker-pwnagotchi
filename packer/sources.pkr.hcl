@@ -7,6 +7,6 @@ source "arm-image" "raspios" {
   qemu_binary = "qemu-arm-static"
   qemu_args = ["-cpu", "arm1176"]
 
-  output_filename = "./dist/raspios.img"
+  output_filename = "./dist/pwnagotchi.img"
   target_image_size = 4294967296
 }

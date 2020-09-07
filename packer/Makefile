@@ -7,7 +7,7 @@ PACKER := $(shell command -v packer 2>/dev/null)
 
 PACKER_WORK_DIR := ./
 PACKER_CACHE_DIR := ./packer_cache/
-PACKER_IMG := ./dist/raspios.img
+PACKER_IMG := ./dist/pwnagotchi.img
 
 ##################################################
 ## "all" target
