@@ -72,7 +72,7 @@ build {
       EOF
       ,
       <<EOF
-        printf '%s\n' 'deb [arch=armhf] http://http.re4son-kernel.com/re4son/ kali-pi main' > /etc/apt/sources.list.d/re4son.list
+        printf '%s\n' "deb [arch=$(dpkg --print-architecture)] http://http.re4son-kernel.com/re4son/ kali-pi main" > /etc/apt/sources.list.d/re4son.list
         curl --proto '=https' --tlsv1.3 -sSf 'https://re4son-kernel.com/keys/http/archive-key.asc' | apt-key add -
         apt-get update && apt-get install -y \
           kalipi-bootloader \
@@ -86,9 +86,9 @@ build {
       EOF
       ,
       <<EOF
-        printf '%s\n' 'deb [arch=armhf] https://download.docker.com/linux/raspbian/ buster stable' > /etc/apt/sources.list.d/docker.list
+        printf '%s\n' "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
         curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
-        apt-get update && apt-get install -y --no-install-recommends docker-ce
+        apt-get update && apt-get install -y docker-ce
       EOF
       ,
       <<EOF
