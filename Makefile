@@ -24,19 +24,19 @@ endif
 IMAGE_BUILD_OPTS :=
 
 IMAGE_NATIVE_DOCKERFILE := $(DISTDIR)/Dockerfile
-IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).txz
+IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).tzst
 
 IMAGE_GENERIC_AMD64_DOCKERFILE := $(DISTDIR)/Dockerfile.generic-amd64
-IMAGE_GENERIC_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).generic-amd64.txz
+IMAGE_GENERIC_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).generic-amd64.tzst
 
 IMAGE_RASPIOS_ARM64V8_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm64v8
-IMAGE_RASPIOS_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm64v8.txz
+IMAGE_RASPIOS_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm64v8.tzst
 
 IMAGE_RASPIOS_ARM32V7_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm32v7
-IMAGE_RASPIOS_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v7.txz
+IMAGE_RASPIOS_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v7.tzst
 
 IMAGE_RASPIOS_ARM32V6_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm32v6
-IMAGE_RASPIOS_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v6.txz
+IMAGE_RASPIOS_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v6.tzst
 
 ##################################################
 ## "all" target
@@ -131,7 +131,7 @@ $(IMAGE_RASPIOS_ARM32V6_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 ##################################################
 
 define save_image
-	'$(DOCKER)' save '$(1)' | xz -T0 > '$(2)'
+	'$(DOCKER)' save '$(1)' | zstd -T0 -1 > '$(2)'
 endef
 
 .PHONY: save-native-image
@@ -172,7 +172,7 @@ $(IMAGE_RASPIOS_ARM32V6_TARBALL): $(IMAGE_RASPIOS_ARM32V6_DOCKERFILE)
 ##################################################
 
 define load_image
-	'$(DOCKER)' load -i '$(1)'
+	zstd -dc '$(1)' | '$(DOCKER)' load
 endef
 
 define tag_image
