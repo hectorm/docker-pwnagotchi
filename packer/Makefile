@@ -7,7 +7,8 @@ PACKER := $(shell command -v packer 2>/dev/null)
 
 PACKER_WORK_DIR := ./
 PACKER_CACHE_DIR := ./packer_cache/
-PACKER_IMG := ./dist/pwnagotchi.img
+PACKER_ARM64_OUT := ./dist/arm64/pwnagotchi.img
+PACKER_ARMHF_OUT := ./dist/armhf/pwnagotchi.img
 
 ##################################################
 ## "all" target
@@ -21,10 +22,21 @@ all: build
 ##################################################
 
 .PHONY: build
-build: $(PACKER_IMG)
+build: build-arm64 build-armhf
 
-$(PACKER_IMG):
-	'$(PACKER)' build '$(PACKER_WORK_DIR)'
+.PHONY: build-arm64
+build-arm64: $(PACKER_ARM64_OUT)
+
+$(PACKER_ARM64_OUT):
+	mkdir -p '$(dir $(PACKER_ARM64_OUT))'
+	'$(PACKER)' build -force -only=arm-image.arm64 '$(PACKER_WORK_DIR)'
+
+.PHONY: build-armhf
+build-armhf: $(PACKER_ARMHF_OUT)
+
+$(PACKER_ARMHF_OUT):
+	mkdir -p '$(dir $(PACKER_ARMHF_OUT))'
+	'$(PACKER)' build -force -only=arm-image.armhf '$(PACKER_WORK_DIR)'
 
 ##################################################
 ## "clean" target
@@ -32,4 +44,4 @@ $(PACKER_IMG):
 
 .PHONY: clean
 clean:
-	rm -rf '$(PACKER_IMG)' '$(PACKER_CACHE_DIR)'
+	rm -rf '$(PACKER_ARM64_OUT)' '$(PACKER_ARMHF_OUT)' '$(PACKER_CACHE_DIR)'

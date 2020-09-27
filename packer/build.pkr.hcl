@@ -1,6 +1,7 @@
 build {
   sources = [
-    "source.arm-image.raspios"
+    "source.arm-image.arm64",
+    "source.arm-image.armhf"
   ]
 
   provisioner "file" {
@@ -19,6 +20,7 @@ build {
     inline_shebang = "/bin/sh -eux"
     inline = [
       <<EOF
+        find /tmp/rootfs/ -type f -name .gitkeep -delete
         find /tmp/rootfs/ -type d -exec chmod 755 '{}' ';' -exec chown root:root '{}' ';'
         find /tmp/rootfs/ -type f -exec chmod 644 '{}' ';' -exec chown root:root '{}' ';'
         find /tmp/rootfs/ -type f -regex '.+/\(bin/.+\|rc\.local$\)' -exec chmod 755 '{}' ';'
