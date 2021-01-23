@@ -3,7 +3,7 @@
 set -eu
 export LC_ALL=C
 
-SRC_DIR=$(dirname "$(dirname "$(readlink -f "$0")")")
+SRC_DIR=$(CDPATH='' cd -- "$(dirname -- "${0:?}")" && pwd -P)
 TMP_DIR=$(mktemp -d)
 
 ARCH=${1-armhf}
@@ -17,7 +17,8 @@ RPI_DTB_URL='https://raw.githubusercontent.com/raspberrypi/firmware/stable/boot/
 RPI_DTB_FILE=${3-${TMP_DIR:?}/rpi.dtb}
 
 # Remove temporary files on exit
-trap 'rm -rf "${TMP_DIR:?}"; trap - EXIT; exit 0' EXIT TERM INT HUP
+# shellcheck disable=SC2154
+trap 'ret="$?"; rm -rf -- "${TMP_DIR:?}"; trap - EXIT; exit "${ret:?}"' EXIT TERM INT HUP
 
 # Create a snapshot image to preserve the original image
 qemu-img create -b "${ORIGINAL_DISK:?}" -f qcow2 "${SNAPSHOT_DISK:?}"
