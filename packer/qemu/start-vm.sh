@@ -3,7 +3,7 @@
 set -eu
 export LC_ALL=C
 
-SRC_DIR=$(CDPATH='' cd -- "$(dirname -- "${0:?}")" && pwd -P)
+SRC_DIR=$(CDPATH='' cd -- "$(dirname -- "$(dirname -- "${0:?}")")" && pwd -P)
 TMP_DIR=$(mktemp -d)
 
 ARCH=${1-armhf}
