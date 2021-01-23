@@ -12,10 +12,12 @@ build {
 
   provisioner "shell" {
     environment_vars = [
+      "TZ=UTC",
       "LANG=en_US.UTF-8",
       "LC_ALL=en_US.UTF-8",
       "DPKG_FORCE=confold",
-      "DEBIAN_FRONTEND=noninteractive"
+      "DEBIAN_FRONTEND=noninteractive",
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     ]
     inline_shebang = "/bin/sh -eux"
     inline = [
