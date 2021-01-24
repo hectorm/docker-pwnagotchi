@@ -5,22 +5,32 @@ After=docker.service
 
 [Service]
 Type=simple
-ExecStartPre=-/bin/mkdir /var/lib/pwnagotchi/
-ExecStartPre=-/usr/bin/docker rm "%N"
+User=root
+Group=root
+Environment=CONTAINER='pwnagotchi'
+Environment=IMAGE='docker.io/hectormolinero/pwnagotchi'
+Environment=TAG='latest'
+ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/lib/pwnagotchi/
+ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/log/pwnagotchi/
+ExecStartPre=-/usr/bin/docker rm -f ${CONTAINER}
 ExecStart=/usr/bin/docker run \
-	--rm --tty \
-	--name "%N" \
-	--hostname "%H" \
-	--privileged --net host \
-	--env PWNAGOTCHI_NAME="%H" \
-	--env-file /etc/pwnagotchi.env \
+	--rm --name ${CONTAINER} --hostname %H \
+	--tty --attach STDOUT --attach STDERR \
+	--log-opt max-size=10m --log-opt max-file=1 \
+	--privileged --network host \
 	--mount type=tmpfs,dst=/run/,tmpfs-mode=0755 \
 	--mount type=tmpfs,dst=/tmp/,tmpfs-mode=1777 \
 	--mount type=bind,src=/sys/fs/cgroup/,dst=/sys/fs/cgroup/,ro \
 	--mount type=bind,src=/var/lib/pwnagotchi/,dst=/root/ \
-	docker.io/hectormolinero/pwnagotchi:latest
-ExecStop=/usr/bin/docker stop "%N"
+	--mount type=bind,src=/var/log/pwnagotchi/,dst=/var/log/journal/ \
+	--env PWNAGOTCHI_NAME=%H \
+	--env-file /etc/pwnagotchi.env \
+	${IMAGE}:${TAG}
+ExecStop=/usr/bin/docker stop -t 60 ${CONTAINER}
+ExecStopPost=/usr/bin/reload-brcmfmac-driver
+TimeoutStartSec=1800s
+TimeoutStopSec=60s
 Restart=always
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

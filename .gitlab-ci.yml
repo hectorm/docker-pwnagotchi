@@ -16,8 +16,8 @@ default:
       alias: 'dockerd'
 
 .cmds:
-  - &cmd_install_build_packages 'apk add --no-cache coreutils git m4 make xz'
-  - &cmd_install_push_packages  'apk add --no-cache coreutils git make xz'
+  - &cmd_install_build_packages 'apk add --no-cache coreutils git m4 make zstd'
+  - &cmd_install_push_packages  'apk add --no-cache coreutils git make zstd'
   - &cmd_docker_login_registry  'docker login -u "${CI_REGISTRY_USER:?}" -p "${CI_REGISTRY_PASSWORD:?}" "${CI_REGISTRY:?}"'
 
 .regexes:
@@ -29,7 +29,7 @@ build:images:native:
   before_script:
     - *cmd_install_build_packages
   script:
-    - 'make build-native-image save-native-image'
+    - 'make IMAGE_BUILD_OPTS="--pull" build-native-image save-native-image'
   artifacts:
     expire_in: '1 day'
     paths:
@@ -42,27 +42,27 @@ build:images:native:
     - *cmd_install_build_packages
   script:
     - 'make binfmt-register'
-    - 'make "build-${ARCH:?}-image" "save-${ARCH:?}-image"'
+    - 'make IMAGE_BUILD_OPTS="--pull" "build-${ARCH:?}-image" "save-${ARCH:?}-image"'
   artifacts:
     expire_in: '1 week'
     paths:
       - './dist/'
 
 build:images:generic-amd64:
-  extends: .build:images:cross
+  extends: '.build:images:cross'
   variables: {ARCH: 'generic-amd64'}
 
-build:images:raspbian-arm64v8:
-  extends: .build:images:cross
-  variables: {ARCH: 'raspbian-arm64v8'}
+build:images:raspios-arm64v8:
+  extends: '.build:images:cross'
+  variables: {ARCH: 'raspios-arm64v8'}
 
-build:images:raspbian-arm32v7:
-  extends: .build:images:cross
-  variables: {ARCH: 'raspbian-arm32v7'}
+build:images:raspios-arm32v7:
+  extends: '.build:images:cross'
+  variables: {ARCH: 'raspios-arm32v7'}
 
-build:images:raspbian-arm32v6:
-  extends: .build:images:cross
-  variables: {ARCH: 'raspbian-arm32v6'}
+build:images:raspios-arm32v6:
+  extends: '.build:images:cross'
+  variables: {ARCH: 'raspios-arm32v6'}
 
 .push:images:cross:
   stage: 'push:images'
@@ -74,28 +74,28 @@ build:images:raspbian-arm32v6:
     - 'make "load-${ARCH:?}-image" "push-${ARCH:?}-image"'
 
 push:images:generic-amd64:
-  extends: .push:images:cross
+  extends: '.push:images:cross'
   dependencies: ['build:images:generic-amd64']
   variables: {ARCH: 'generic-amd64'}
 
-push:images:raspbian-arm64v8:
-  extends: .push:images:cross
-  dependencies: ['build:images:raspbian-arm64v8']
-  variables: {ARCH: 'raspbian-arm64v8'}
+push:images:raspios-arm64v8:
+  extends: '.push:images:cross'
+  dependencies: ['build:images:raspios-arm64v8']
+  variables: {ARCH: 'raspios-arm64v8'}
 
-push:images:raspbian-arm32v7:
-  extends: .push:images:cross
-  dependencies: ['build:images:raspbian-arm32v7']
-  variables: {ARCH: 'raspbian-arm32v7'}
+push:images:raspios-arm32v7:
+  extends: '.push:images:cross'
+  dependencies: ['build:images:raspios-arm32v7']
+  variables: {ARCH: 'raspios-arm32v7'}
 
-push:images:raspbian-arm32v6:
-  extends: .push:images:cross
-  dependencies: ['build:images:raspbian-arm32v6']
-  variables: {ARCH: 'raspbian-arm32v6'}
+push:images:raspios-arm32v6:
+  extends: '.push:images:cross'
+  dependencies: ['build:images:raspios-arm32v6']
+  variables: {ARCH: 'raspios-arm32v6'}
 
 push:manifests:cross:
   stage: 'push:manifests'
-  dependencies: ['push:images:generic-amd64', 'push:images:raspbian-arm64v8', 'push:images:raspbian-arm32v7', 'push:images:raspbian-arm32v6']
+  dependencies: ['push:images:generic-amd64', 'push:images:raspios-arm64v8', 'push:images:raspios-arm32v7', 'push:images:raspios-arm32v6']
   only: [*regex_version]
   variables:
     DOCKER_CLI_EXPERIMENTAL: 'enabled'

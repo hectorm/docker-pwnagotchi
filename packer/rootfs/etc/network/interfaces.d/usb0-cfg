@@ -1,4 +1,4 @@
 allow-hotplug usb0
 iface usb0 inet static
-  address 10.3.14.2/24
+  address 10.3.14.15/24
   gateway 10.3.14.1

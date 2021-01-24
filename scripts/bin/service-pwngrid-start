@@ -14,5 +14,4 @@ exec pwngrid \
 		-address 127.0.0.1:8666 \
 		-keys /root/ \
 		-iface "${PWNAGOTCHI_IFACE_MON:?}" \
-		-client-token /root/.api-enrollment.json \
-		-log /var/log/pwngrid-peer.log
+		-client-token /root/.api-enrollment.json

@@ -7,11 +7,21 @@ NEXMON_REMOTE=https://github.com/DrSchottky/nexmon.git
 NEXMON_DIR=/usr/local/src/nexmon/
 NEXMON_CHIP=bcm43430a1
 NEXMON_FIRMWARE=7_45_41_46
+KERNEL_PKG_VER=1.20200601-1 # Latest version with a 4.19 kernel
+KERNEL_PKG_ARCH=$(dpkg --print-architecture)
 
 # Install dependencies
 apt-get update
 apt-get install -y autoconf automake automake-1.15 bison build-essential flex gawk git libtool pkgconf
-apt-get install -y debianutils libfl-dev libgmp-dev libgmp3-dev qpdf raspberrypi-kernel-headers texinfo
+apt-get install -y debianutils libfl-dev libgmp-dev libgmp3-dev qpdf texinfo
+
+# Install specific kernel version
+for pkg in raspberrypi-bootloader raspberrypi-kernel raspberrypi-kernel-headers libraspberrypi0 libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc; do
+	if [ "$(dpkg -s "${pkg:?}" | awk '/^Version:/{print($2)}')" != "${KERNEL_PKG_VER:?}" ]; then
+		curl -o "/tmp/${pkg:?}.deb" "https://archive.raspberrypi.org/debian/pool/main/r/raspberrypi-firmware/${pkg:?}_${KERNEL_PKG_VER:?}_${KERNEL_PKG_ARCH:?}.deb"
+		dpkg --install --force-downgrade "/tmp/${pkg:?}.deb"; apt-mark hold "${pkg:?}"; rm -f "/tmp/${pkg:?}.deb"
+	fi
+done
 
 if ischroot; then
 	KERNEL_VERSION=$(dpkg -L raspberrypi-kernel | grep -Eom1 '4\.19\.[0-9]+\+')

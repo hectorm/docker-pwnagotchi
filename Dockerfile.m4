@@ -1,8 +1,8 @@
 m4_changequote([[, ]])
 
-m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[raspbian]]), [[-1]],
-	[[m4_define([[IS_RASPBIAN]], 0)]],
-	[[m4_define([[IS_RASPBIAN]], 1)]]
+m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[rpi]]), [[-1]],
+	[[m4_define([[IS_RASPIOS]], 0)]],
+	[[m4_define([[IS_RASPIOS]], 1)]]
 )
 
 ##################################################
@@ -22,14 +22,14 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Setup locale
-RUN printf '%s\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen
-RUN localedef -c -i en_US -f UTF-8 en_US.UTF-8 ||:
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
+RUN printf '%s\n' "${LANG:?} UTF-8" > /etc/locale.gen \
+	&& localedef -c -i "${LANG%%.*}" -f UTF-8 "${LANG:?}" ||:
 
 # Setup timezone
 ENV TZ=UTC
-RUN ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
-RUN printf '%s\n' "${TZ:?}" > /etc/timezone
+RUN printf '%s\n' "${TZ:?}" > /etc/timezone \
+	&& ln -snf "/usr/share/zoneinfo/${TZ:?}" /etc/localtime
 
 ##################################################
 ## "build-base" stage
@@ -66,7 +66,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV PIP_NO_CACHE_DIR=0
-m4_ifelse(IS_RASPBIAN, 1, [[ENV PIP_EXTRA_INDEX_URL=https://www.piwheels.org/simple]])
+m4_ifelse(IS_RASPIOS, 1, [[ENV PIP_EXTRA_INDEX_URL=https://www.piwheels.org/simple]])
 
 RUN python3 --version
 
@@ -106,7 +106,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Bettercap
-ARG BETTERCAP_TREEISH=v2.26.1
+ARG BETTERCAP_TREEISH=v2.29
 ARG BETTERCAP_REMOTE=https://github.com/bettercap/bettercap.git
 RUN mkdir /tmp/bettercap/
 WORKDIR /tmp/bettercap/
@@ -201,29 +201,26 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		libvpx-dev \
 		libwebp-dev \
 		libzstd-dev \
-		m4_ifelse(IS_RASPBIAN, 1, [[libjasper-dev]]) \
+		m4_ifelse(IS_RASPIOS, 1, [[libjasper-dev]]) \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=v1.4.3
+ARG PWNAGOTCHI_TREEISH=v1.5.3
 ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
 RUN mkdir /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
 RUN git clone "${PWNAGOTCHI_REMOTE:?}" ./
 RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
 RUN git submodule update --init --recursive
-# Remove installation step during setup
-RUN sed -ri '/^installer\(\)$/d' ./setup.py
 # Modify some hardcoded paths
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
-RUN sed -ri 's|^\s*(frame_path)\s*=.+$|\1 = "/tmp/pwnagotchi.png"|' ./pwnagotchi/ui/web/__init__.py
 # Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
-m4_ifelse(IS_RASPBIAN, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
+m4_ifelse(IS_RASPIOS, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
 # Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
+ENV PWNAGOTCHI_ENABLE_INSTALLER=false
 RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install pycryptodome==3.9.4
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install -r ./requirements.txt
+RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install --prefer-binary -r ./requirements.txt
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
 
@@ -296,7 +293,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 		systemd \
 		tcpdump \
 		wireless-tools \
-		m4_ifelse(IS_RASPBIAN, 1, [[libjasper1]]) \
+		m4_ifelse(IS_RASPIOS, 1, [[libjasper1]]) \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Remove default systemd unit dependencies
@@ -304,36 +301,37 @@ RUN find \
 		/lib/systemd/system/*.target.wants/ \
 		/etc/systemd/system/*.target.wants/ \
 		-not -name 'systemd-tmpfiles-setup.service' \
-		-not -name 'systemd-journald.service' \
+		-not -name 'systemd-journal*' \
 		-mindepth 1 -print -delete
 
+# Copy systemd config
+COPY --chown=root:root ./config/systemd/ /etc/systemd/
+
 # Copy Bettercap build
-COPY --from=build-bettercap /usr/bin/bettercap /usr/bin/bettercap
-COPY --from=build-bettercap /usr/local/share/bettercap/ /usr/local/share/bettercap/
+COPY --from=build-bettercap --chown=root:root /usr/bin/bettercap /usr/bin/bettercap
+COPY --from=build-bettercap --chown=root:root /usr/local/share/bettercap/ /usr/local/share/bettercap/
 
 # Copy Bettercap caplets
-COPY ./config/bettercap/caplets/ /usr/local/share/bettercap/caplets/
+COPY --chown=root:root ./config/bettercap/caplets/ /usr/local/share/bettercap/caplets/
 
 # Copy PwnGRID build
-COPY --from=build-pwngrid /usr/bin/pwngrid /usr/bin/pwngrid
+COPY --from=build-pwngrid --chown=root:root /usr/bin/pwngrid /usr/bin/pwngrid
 
 # Copy Pwnagotchi build
-COPY --from=build-pwnagotchi /usr/lib/pwnagotchi/ /usr/lib/pwnagotchi/
+COPY --from=build-pwnagotchi --chown=root:root /usr/lib/pwnagotchi/ /usr/lib/pwnagotchi/
 RUN ln -s /usr/lib/pwnagotchi/bin/pwnagotchi /usr/bin/pwnagotchi
 
 # Copy Pwnagotchi config
-COPY ./config/pwnagotchi/ /etc/pwnagotchi/
+COPY --chown=root:root ./config/pwnagotchi/ /etc/pwnagotchi/
 
 # Copy scripts
-COPY ./scripts/bin/ /usr/bin/
+COPY --chown=root:root ./scripts/bin/ /usr/bin/
 
 # Copy and enable services
-COPY --chown=root:root scripts/service/ /etc/systemd/system/
+COPY --chown=root:root ./scripts/service/ /etc/systemd/system/
 RUN chmod 644 /etc/systemd/system/*.target /etc/systemd/system/*.service
-RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
-
-# Replace multi-user target with container target
 RUN systemctl set-default container.target
+RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
 
 # Environment
 ENV PWNAGOTCHI_NAME=pwnagotchi
@@ -345,7 +343,9 @@ ENV PWNAGOTCHI_IFACE_MON=mon0
 ENV PWNAGOTCHI_IFACE_USB=usb0
 ENV PWNAGOTCHI_MAX_BLIND_EPOCHS=10
 ENV PWNAGOTCHI_WHITELIST=[]
-ENV PWNAGOTCHI_FILTER=null
+ENV PWNAGOTCHI_FILTER=
+ENV PWNAGOTCHI_WEB_ENABLED=true
+ENV PWNAGOTCHI_WEB_ADDRESS=0.0.0.0
 ENV PWNAGOTCHI_DISPLAY_ENABLED=true
 ENV PWNAGOTCHI_DISPLAY_ROTATION=180
 ENV PWNAGOTCHI_DISPLAY_TYPE=waveshare_2

@@ -5,9 +5,10 @@ After=bettercap.service pwngrid.service
 
 [Service]
 Type=simple
+EnvironmentFile=/etc/environment
 ExecStart=/usr/bin/service-pwnagotchi-start
 Restart=always
 RestartSec=30
 
 [Install]
-WantedBy=container.target
+WantedBy=default.target

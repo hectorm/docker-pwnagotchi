@@ -1,0 +1,10 @@
+#!/usr/bin/awk -f
+
+{while(match($0, "\\${[A-Z_]+[A-Z0-9_]*}")) {
+	LSTART=substr($0, 0, RSTART - 1);
+	LVAR=substr($0, RSTART + 2, RLENGTH - 3);
+	LEND=substr($0, RSTART + RLENGTH);
+	$0=LSTART""ENVIRON[LVAR]""LEND;
+}}
+
+{print($0)}
