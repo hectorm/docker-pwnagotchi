@@ -7,9 +7,9 @@ After=docker.service
 Type=simple
 User=root
 Group=root
-Environment=CONTAINER='pwnagotchi'
-Environment=IMAGE='docker.io/hectormolinero/pwnagotchi'
-Environment=TAG='latest'
+Environment=CONTAINER=pwnagotchi
+Environment=IMAGE=docker.io/hectormolinero/pwnagotchi
+Environment=TAG=latest
 ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/lib/pwnagotchi/
 ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/log/pwnagotchi/
 ExecStartPre=-/usr/bin/docker rm -f ${CONTAINER}
