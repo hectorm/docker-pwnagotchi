@@ -216,6 +216,8 @@ RUN git submodule update --init --recursive
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
 # Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
 m4_ifelse(IS_RASPIOS, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
+# Enable "rpi" optional feature in the "inky" module
+m4_ifelse(IS_RASPIOS, 1, [[RUN sed -ri 's/^(inky)==(.*)$/\1[rpi]==\2/' ./requirements.txt]])
 # Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
