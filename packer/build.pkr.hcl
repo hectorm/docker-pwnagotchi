@@ -19,7 +19,8 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     ]
-    inline_shebang = "/bin/sh -eux"
+    skip_clean = true
+    execute_command = "/usr/bin/env -i {{ .Vars }} /bin/sh -eux {{ .Path }}"
     inline = [
       <<EOF
         find /tmp/rootfs/ -type f -name .gitkeep -delete
@@ -44,11 +45,6 @@ build {
       EOF
       ,
       <<EOF
-        apt-mark hold \
-          firmware-brcm80211
-      EOF
-      ,
-      <<EOF
         apt-get install -y \
           apt-transport-https \
           ca-certificates \
@@ -65,7 +61,11 @@ build {
       <<EOF
         apt-get purge -y \
           bluez \
+          firmware-brcm80211 \
           nfs-common \
+          raspberrypi-bootloader \
+          raspberrypi-kernel \
+          raspberrypi-kernel-headers \
           raspberrypi-net-mods \
           triggerhappy \
           unattended-upgrades \
@@ -80,15 +80,11 @@ build {
           kalipi-bootloader \
           kalipi-kernel \
           kalipi-kernel-headers \
-          kalipi-re4son-firmware \
-          libraspberrypi-bin \
-          libraspberrypi-dev \
-          libraspberrypi-doc \
-          libraspberrypi0
+          kalipi-re4son-firmware
       EOF
       ,
       <<EOF
-        printf '%s\n' "deb [arch=$(dpkg --print-architecture)] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+        printf '%s\n' "deb [arch=armhf] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
         curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
         apt-get update && apt-get install -y docker-ce
       EOF
