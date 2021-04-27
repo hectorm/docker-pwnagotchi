@@ -22,7 +22,7 @@ trap 'ret="$?"; rm -rf -- "${TMP_DIR:?}"; trap - EXIT; exit "${ret:?}"' EXIT TER
 
 # Create a snapshot image to preserve the original image
 qemu-img create -b "${ORIGINAL_DISK:?}" -f qcow2 "${SNAPSHOT_DISK:?}"
-qemu-img resize "${SNAPSHOT_DISK:?}" +2G
+qemu-img resize "${SNAPSHOT_DISK:?}" +4G
 
 # Download RPI kernel and DTB
 [ -e "${RPI_KERNEL_FILE:?}" ] || curl --proto '=https' --tlsv1.2 -Lo "${RPI_KERNEL_FILE:?}" "${RPI_KERNEL_URL:?}"
