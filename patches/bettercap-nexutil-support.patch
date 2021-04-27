@@ -1,0 +1,30 @@
+diff --git a/network/net_linux.go b/network/net_linux.go
+index dd0977a..ef8568c 100644
+--- a/network/net_linux.go
++++ b/network/net_linux.go
+@@ -23,7 +23,15 @@ func SetInterfaceChannel(iface string, channel int) error {
+ 		return nil
+ 	}
+ 
+-	if core.HasBinary("iw") {
++	if core.HasBinary("nexutil") {
++		// Debug("SetInterfaceChannel(%s, %d) nexutil based", iface, channel)
++		out, err := core.Exec("nexutil", []string{"-I", iface, "-i", "-s", "30", "-v", fmt.Sprintf("%d", channel)})
++		if err != nil {
++			return fmt.Errorf("nexutil: out=%s err=%s", out, err)
++		} else if out != "" {
++			return fmt.Errorf("Unexpected output while setting interface %s to channel %d: %s", iface, channel, out)
++		}
++	} else if core.HasBinary("iw") {
+ 		// Debug("SetInterfaceChannel(%s, %d) iw based", iface, channel)
+ 		out, err := core.Exec("iw", []string{"dev", iface, "set", "channel", fmt.Sprintf("%d", channel)})
+ 		if err != nil {
+@@ -40,7 +48,7 @@ func SetInterfaceChannel(iface string, channel int) error {
+ 			return fmt.Errorf("Unexpected output while setting interface %s to channel %d: %s", iface, channel, out)
+ 		}
+ 	} else {
+-		return fmt.Errorf("no iw or iwconfig binaries found in $PATH")
++		return fmt.Errorf("no nexutil, iw or iwconfig binaries found in $PATH")
+ 	}
+ 
+ 	SetInterfaceCurrentChannel(iface, channel)

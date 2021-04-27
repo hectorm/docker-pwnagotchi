@@ -91,6 +91,30 @@ ENV PATH=${GOROOT}/bin:${GOPATH}/bin:${PATH}
 RUN go version
 
 ##################################################
+## "build-nexutil" stage
+##################################################
+
+m4_ifelse(IS_RASPIOS, 1, [[
+
+FROM build-base AS build-nexutil
+
+# Build Nexutil
+ARG NEXMON_TREEISH=297ec9f4e591cee9d7256fa95d644d815222d9e5
+ARG NEXMON_REMOTE=https://github.com/seemoo-lab/nexmon.git
+RUN mkdir /tmp/nexmon/
+WORKDIR /tmp/nexmon/
+RUN git clone "${NEXMON_REMOTE:?}" ./
+RUN git checkout "${NEXMON_TREEISH:?}"
+RUN git submodule update --init --recursive
+WORKDIR /tmp/nexmon/utilities/nexutil/
+RUN make nexutil
+RUN mv ./nexutil /usr/bin/nexutil
+RUN file /usr/bin/nexutil
+RUN /usr/bin/nexutil --version
+
+]])
+
+##################################################
 ## "build-bettercap" stage
 ##################################################
 
@@ -106,13 +130,15 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Bettercap
-ARG BETTERCAP_TREEISH=v2.29
+ARG BETTERCAP_TREEISH=v2.31.0
 ARG BETTERCAP_REMOTE=https://github.com/bettercap/bettercap.git
 RUN mkdir /tmp/bettercap/
 WORKDIR /tmp/bettercap/
 RUN git clone "${BETTERCAP_REMOTE:?}" ./
 RUN git checkout "${BETTERCAP_TREEISH:?}"
 RUN git submodule update --init --recursive
+COPY ./patches/bettercap-*.patch ./
+RUN git apply -v ./bettercap-*.patch
 RUN go build -o ./dist/bettercap ./
 RUN mv ./dist/bettercap /usr/bin/bettercap
 RUN file /usr/bin/bettercap
@@ -308,6 +334,9 @@ RUN find \
 
 # Copy systemd config
 COPY --chown=root:root ./config/systemd/ /etc/systemd/
+
+# Copy Nexutil build
+m4_ifelse(IS_RASPIOS, 1, [[COPY --from=build-nexutil --chown=root:root /usr/bin/nexutil /usr/bin/nexutil]])
 
 # Copy Bettercap build
 COPY --from=build-bettercap --chown=root:root /usr/bin/bettercap /usr/bin/bettercap
