@@ -42,7 +42,7 @@ git checkout "${NEXMON_TREEISH:?}"
 git submodule update --init --recursive
 
 # Disable statistics
-touch ./DISABLE_STATISTICS
+touch "${NEXMON_SRCDIR:?}"/DISABLE_STATISTICS
 
 # Build libisl if not installed
 if [ ! -e /usr/lib/arm-linux-gnueabihf/libisl.so.10 ]; then
@@ -67,7 +67,7 @@ cd "${NEXMON_SRCDIR:?}"
 cd "${NEXMON_SRCDIR:?}"/patches/bcm43430a1/"${NEXMON_FIRMWARE:?}"/nexmon/
 make ./brcmfmac43430-sdio.bin
 make -C /lib/modules/"${KERNEL_RELEASE:?}"/build M="${PWD:?}"/brcmfmac_4.19.y-nexmon -j2
-install -Dm 644 ./brcmfmac_4.19.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_VERSION:?}"/updates/brcmfmac.ko
+install -Dm 644 ./brcmfmac_4.19.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_RELEASE:?}"/updates/brcmfmac.ko
 install -Dm 644 ./brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
 curl -Lo /lib/firmware/brcm/brcmfmac43430-sdio.txt "${BRCMFMAC_NVRAM_URL:?}"
 depmod "${KERNEL_RELEASE:?}"
