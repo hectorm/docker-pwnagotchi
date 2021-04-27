@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+set -eu
+
+NEXMON_TREEISH='499968c9f77ea5120553b4ce631e110abd33415d'
+NEXMON_REMOTE='https://github.com/DrSchottky/nexmon.git'
+NEXMON_SRCDIR='/usr/local/src/nexmon/'
+NEXMON_FIRMWARE='7_45_41_46'
+
+BRCMFMAC_NVRAM_URL='https://raw.githubusercontent.com/openwrt/cypress-nvram/e7b78df22f2a0c5f56abb7b5880661611de35e5f/brcmfmac43430-sdio.raspberrypi%2Cmodel-zero-w.txt'
+
+KERNEL_PKG_VERSION='1.20200601-1' # Latest version with a 4.19 kernel
+KERNEL_PKG_ARCH="$(dpkg --print-architecture)"
+
+# Install dependencies
+apt-get update
+apt-get install -y autoconf automake automake-1.15 bison build-essential flex gawk git libtool-bin pkgconf
+apt-get install -y debianutils libfl-dev libgmp-dev libgmp3-dev qpdf texinfo
+
+# Freeze Broadcom/Cypress 802.11 firmware package
+apt-mark hold firmware-brcm80211
+
+# Install and freeze a specific kernel version
+for pkg in raspberrypi-bootloader raspberrypi-kernel raspberrypi-kernel-headers libraspberrypi0 libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc; do
+	if [ "$(dpkg -s "${pkg:?}" | awk '/^Version:/{print($2)}')" != "${KERNEL_PKG_VERSION:?}" ]; then
+		curl -o "/tmp/${pkg:?}.deb" "https://archive.raspberrypi.org/debian/pool/main/r/raspberrypi-firmware/${pkg:?}_${KERNEL_PKG_VERSION:?}_${KERNEL_PKG_ARCH:?}.deb"
+		dpkg --install --force-downgrade "/tmp/${pkg:?}.deb"; apt-mark hold "${pkg:?}"; rm -f "/tmp/${pkg:?}.deb"
+	fi
+done
+
+# Get kernel release
+KERNEL_RELEASE="$(dpkg -L raspberrypi-kernel | grep -Eom1 '4\.19\.[0-9]+\+')"
+
+# Create source directory
+rm -rf "${NEXMON_SRCDIR:?}"
+mkdir -p "${NEXMON_SRCDIR:?}"
+
+# Clone project
+cd "${NEXMON_SRCDIR:?}"
+git clone "${NEXMON_REMOTE:?}" ./
+git checkout "${NEXMON_TREEISH:?}"
+git submodule update --init --recursive
+
+# Disable statistics
+touch "${NEXMON_SRCDIR:?}"/DISABLE_STATISTICS
+
+# Build libisl if not installed
+if [ ! -e /usr/lib/arm-linux-gnueabihf/libisl.so.10 ]; then
+	cd "${NEXMON_SRCDIR:?}"/buildtools/isl-0.10/
+	./configure && make -j"$(nproc)" && make install
+	ln -sf /usr/local/lib/libisl.so /usr/lib/arm-linux-gnueabihf/libisl.so.10
+fi
+
+# Build libmpfr if not installed
+if [ ! -e /usr/lib/arm-linux-gnueabihf/libmpfr.so.4 ]; then
+	cd "${NEXMON_SRCDIR:?}"/buildtools/mpfr-3.1.4/
+	./configure && make -j"$(nproc)" && make install
+	ln -sf /usr/local/lib/libmpfr.so /usr/lib/arm-linux-gnueabihf/libmpfr.so.4
+fi
+
+# Setup build environment
+cd "${NEXMON_SRCDIR:?}"
+# shellcheck disable=SC1091
+. ./setup_env.sh && make
+
+# Build and install firmware
+cd "${NEXMON_SRCDIR:?}"/patches/bcm43430a1/"${NEXMON_FIRMWARE:?}"/nexmon/
+make ./brcmfmac43430-sdio.bin
+make -C /lib/modules/"${KERNEL_RELEASE:?}"/build M="${PWD:?}"/brcmfmac_4.19.y-nexmon -j2
+install -Dm 644 ./brcmfmac_4.19.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_RELEASE:?}"/updates/brcmfmac.ko
+install -Dm 644 ./brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
+curl -Lo /lib/firmware/brcm/brcmfmac43430-sdio.txt "${BRCMFMAC_NVRAM_URL:?}"
+depmod "${KERNEL_RELEASE:?}"
+
+# Build and install nexutil
+cd "${NEXMON_SRCDIR:?}"/utilities/nexutil/
+make && make install

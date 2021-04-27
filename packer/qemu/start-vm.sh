@@ -10,10 +10,10 @@ ARCH=${1-armhf}
 ORIGINAL_DISK=${SRC_DIR:?}/dist/${ARCH:?}/pwnagotchi.img
 SNAPSHOT_DISK=${TMP_DIR:?}/snapshot.qcow2
 
-RPI_KERNEL_URL='https://raw.githubusercontent.com/raspberrypi/firmware/stable/boot/kernel8.img'
+RPI_KERNEL_URL='https://raw.githubusercontent.com/raspberrypi/firmware/1.20200601/boot/kernel8.img'
 RPI_KERNEL_FILE=${2-${TMP_DIR:?}/kernel.img}
 
-RPI_DTB_URL='https://raw.githubusercontent.com/raspberrypi/firmware/stable/boot/bcm2710-rpi-3-b.dtb'
+RPI_DTB_URL='https://raw.githubusercontent.com/raspberrypi/firmware/1.20200601/boot/bcm2710-rpi-3-b.dtb'
 RPI_DTB_FILE=${3-${TMP_DIR:?}/rpi.dtb}
 
 # Remove temporary files on exit

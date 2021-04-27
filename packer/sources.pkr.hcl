@@ -8,7 +8,7 @@ source "arm-image" "arm64" {
   qemu_args = ["-cpu", "cortex-a72"]
 
   output_filename = "./dist/arm64/pwnagotchi.img"
-  target_image_size = 4294967296
+  target_image_size = 6442450944
 }
 
 source "arm-image" "armhf" {
@@ -21,5 +21,5 @@ source "arm-image" "armhf" {
   qemu_args = ["-cpu", "arm1176"]
 
   output_filename = "./dist/armhf/pwnagotchi.img"
-  target_image_size = 4294967296
+  target_image_size = 6442450944
 }

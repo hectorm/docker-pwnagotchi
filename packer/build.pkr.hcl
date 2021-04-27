@@ -63,9 +63,6 @@ build {
           bluez \
           firmware-brcm80211 \
           nfs-common \
-          raspberrypi-bootloader \
-          raspberrypi-kernel \
-          raspberrypi-kernel-headers \
           raspberrypi-net-mods \
           triggerhappy \
           unattended-upgrades \
@@ -74,19 +71,13 @@ build {
       EOF
       ,
       <<EOF
-        printf '%s\n' "deb [arch=$(dpkg --print-architecture)] http://http.re4son-kernel.com/re4son/ kali-pi main" > /etc/apt/sources.list.d/re4son.list
-        curl --proto '=https' --tlsv1.3 -sSf 'https://re4son-kernel.com/keys/http/archive-key.asc' | apt-key add -
-        apt-get update && apt-get install -y \
-          kalipi-bootloader \
-          kalipi-kernel \
-          kalipi-kernel-headers \
-          kalipi-re4son-firmware
-      EOF
-      ,
-      <<EOF
         printf '%s\n' "deb [arch=armhf] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
         curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
         apt-get update && apt-get install -y docker-ce
+      EOF
+      ,
+      <<EOF
+        rpi-nexmon-update
       EOF
       ,
       <<EOF
