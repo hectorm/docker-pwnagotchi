@@ -99,7 +99,7 @@ m4_ifelse(IS_RASPIOS, 1, [[
 FROM build-base AS build-nexutil
 
 # Build Nexutil
-ARG NEXMON_TREEISH=297ec9f4e591cee9d7256fa95d644d815222d9e5
+ARG NEXMON_TREEISH=1ad6a827e92efa8f531594c85d6cdbc184fee3e8
 ARG NEXMON_REMOTE=https://github.com/seemoo-lab/nexmon.git
 RUN mkdir /tmp/nexmon/
 WORKDIR /tmp/nexmon/
