@@ -2,14 +2,13 @@
 
 set -eu
 
-NEXMON_TREEISH='499968c9f77ea5120553b4ce631e110abd33415d'
-NEXMON_REMOTE='https://github.com/DrSchottky/nexmon.git'
+NEXMON_TREEISH='1ad6a827e92efa8f531594c85d6cdbc184fee3e8'
+NEXMON_REMOTE='https://github.com/seemoo-lab/nexmon.git'
 NEXMON_SRCDIR='/usr/local/src/nexmon/'
-NEXMON_FIRMWARE='7_45_41_46'
 
 BRCMFMAC_NVRAM_URL='https://raw.githubusercontent.com/openwrt/cypress-nvram/e7b78df22f2a0c5f56abb7b5880661611de35e5f/brcmfmac43430-sdio.raspberrypi%2Cmodel-zero-w.txt'
 
-KERNEL_PKG_VERSION='1.20200601-1' # Latest version with a 4.19 kernel
+KERNEL_PKG_VERSION='1.20210108-1' # Latest version with a 5.4 kernel
 KERNEL_PKG_ARCH="$(dpkg --print-architecture)"
 
 # Install dependencies
@@ -29,7 +28,7 @@ for pkg in raspberrypi-bootloader raspberrypi-kernel raspberrypi-kernel-headers 
 done
 
 # Get kernel release
-KERNEL_RELEASE="$(dpkg -L raspberrypi-kernel | grep -Eom1 '4\.19\.[0-9]+\+')"
+KERNEL_RELEASE="$(dpkg -L raspberrypi-kernel | grep -Eom1 '5\.4\.[0-9]+\+')"
 
 # Create source directory
 rm -rf "${NEXMON_SRCDIR:?}"
@@ -64,13 +63,13 @@ cd "${NEXMON_SRCDIR:?}"
 . ./setup_env.sh && make
 
 # Build and install firmware
-cd "${NEXMON_SRCDIR:?}"/patches/bcm43430a1/"${NEXMON_FIRMWARE:?}"/nexmon/
+cd "${NEXMON_SRCDIR:?}"/patches/bcm43430a1/7_45_41_46/nexmon/
 make ./brcmfmac43430-sdio.bin
-make -C /lib/modules/"${KERNEL_RELEASE:?}"/build M="${PWD:?}"/brcmfmac_4.19.y-nexmon -j2
-install -Dm 644 ./brcmfmac_4.19.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_RELEASE:?}"/updates/brcmfmac.ko
 install -Dm 644 ./brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
-curl -Lo /lib/firmware/brcm/brcmfmac43430-sdio.txt "${BRCMFMAC_NVRAM_URL:?}"
-depmod "${KERNEL_RELEASE:?}"
+curl -Lo /lib/firmware/brcm/brcmfmac43430-sdio.raspberrypi,model-zero-w.txt "${BRCMFMAC_NVRAM_URL:?}"
+cd "${NEXMON_SRCDIR:?}"/patches/bcm43455c0/7_45_206/nexmon/
+make -C /lib/modules/"${KERNEL_RELEASE:?}"/build M="${PWD:?}"/brcmfmac_5.4.y-nexmon -j2
+install -Dm 644 ./brcmfmac_5.4.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_RELEASE:?}"/kernel/drivers/net/wireless/broadcom/brcm80211/brcmfmac/brcmfmac.ko
 
 # Build and install nexutil
 cd "${NEXMON_SRCDIR:?}"/utilities/nexutil/
