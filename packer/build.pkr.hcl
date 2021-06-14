@@ -55,7 +55,8 @@ build {
           gnupg \
           htop \
           i2c-tools \
-          openssh-server
+          openssh-server \
+          zstd
       EOF
       ,
       <<EOF
