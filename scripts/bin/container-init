@@ -3,7 +3,16 @@
 set -eu
 
 # Dump environment variables
-env | grep -Ev '^(PWD|HOME|USER|USERNAME|SHELL|TERM|SHLVL)=' | sort > /etc/environment
+awk -f- > /etc/environment <<-'EOF'
+	BEGIN {
+		for (v in ENVIRON) {
+			if (v !~ /^(AWKPATH|AWKLIBPATH|PWD|HOME|USER|USERNAME|SHELL|TERM|SHLVL)$/) {
+				gsub(/'/, "'\\''", ENVIRON[v]);
+				print(v"='"ENVIRON[v]"'");
+			}
+		}
+	}
+EOF
 
 # Start init system
 exec /sbin/init
