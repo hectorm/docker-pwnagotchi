@@ -38,6 +38,9 @@ IMAGE_RASPIOS_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v7.tzs
 IMAGE_RASPIOS_ARM32V6_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm32v6
 IMAGE_RASPIOS_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v6.tzst
 
+export DOCKER_BUILDKIT := 1
+export BUILDKIT_PROGRESS := plain
+
 ##################################################
 ## "all" target
 ##################################################
