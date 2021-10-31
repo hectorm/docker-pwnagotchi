@@ -3,6 +3,6 @@
 set -eu
 
 # shellcheck source=./pwnlib
-. /usr/bin/pwnlib
+. /usr/local/bin/pwnlib
 
 start_monitor_interface

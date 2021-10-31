@@ -5,7 +5,7 @@ Wants=network.target
 [Service]
 Type=simple
 EnvironmentFile=/etc/environment
-ExecStart=/usr/bin/service-pwngrid-start
+ExecStart=/usr/local/bin/service-pwngrid-start
 Restart=always
 RestartSec=30
 

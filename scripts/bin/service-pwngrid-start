@@ -3,7 +3,7 @@
 set -eu
 
 # shellcheck source=./pwnlib
-. /usr/bin/pwnlib
+. /usr/local/bin/pwnlib
 
 # Generate Pwnagotchi keys if they do not exist
 if [ ! -f /root/id_rsa ]; then

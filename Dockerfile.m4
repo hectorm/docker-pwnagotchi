@@ -108,9 +108,9 @@ RUN git checkout "${NEXMON_TREEISH:?}"
 RUN git submodule update --init --recursive
 WORKDIR /tmp/nexmon/utilities/nexutil/
 RUN make nexutil
-RUN mv ./nexutil /usr/bin/nexutil
-RUN file /usr/bin/nexutil
-RUN /usr/bin/nexutil --version
+RUN mv ./nexutil /usr/local/bin/nexutil
+RUN file /usr/local/bin/nexutil
+RUN /usr/local/bin/nexutil --version
 
 ]])
 
@@ -140,9 +140,9 @@ RUN git submodule update --init --recursive
 COPY ./patches/bettercap-*.patch ./
 RUN git apply -v ./bettercap-*.patch
 RUN go build -o ./dist/bettercap ./
-RUN mv ./dist/bettercap /usr/bin/bettercap
-RUN file /usr/bin/bettercap
-RUN /usr/bin/bettercap --version
+RUN mv ./dist/bettercap /usr/local/bin/bettercap
+RUN file /usr/local/bin/bettercap
+RUN /usr/local/bin/bettercap --version
 
 # Install Bettercap UI
 ARG BETTERCAP_UI_VERSION=v1.3.0
@@ -176,9 +176,9 @@ RUN git clone "${PWNGRID_REMOTE:?}" ./
 RUN git checkout "${PWNGRID_TREEISH:?}"
 RUN git submodule update --init --recursive
 RUN go build -o ./dist/pwngrid ./cmd/pwngrid/*.go
-RUN mv ./dist/pwngrid /usr/bin/pwngrid
-RUN file /usr/bin/pwngrid
-RUN /usr/bin/pwngrid --version
+RUN mv ./dist/pwngrid /usr/local/bin/pwngrid
+RUN file /usr/local/bin/pwngrid
+RUN /usr/local/bin/pwngrid --version
 
 ##################################################
 ## "build-pwnagotchi" stage
@@ -245,7 +245,7 @@ m4_ifelse(IS_RASPIOS, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.
 # Enable "rpi" optional feature in the "inky" module
 m4_ifelse(IS_RASPIOS, 1, [[RUN sed -ri 's/^(inky)==(.*)$/\1[rpi]==\2/' ./requirements.txt]])
 # Create virtual environment and install requirements
-ENV PWNAGOTCHI_VENV=/usr/lib/pwnagotchi/
+ENV PWNAGOTCHI_VENV=/usr/local/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
 RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install --prefer-binary -r ./requirements.txt
@@ -334,33 +334,40 @@ RUN find \
 
 # Copy systemd config
 COPY --chown=root:root ./config/systemd/ /etc/systemd/
+RUN find /etc/systemd/ -type f -name '*.conf' -not -perm 0644 -exec chmod 0644 '{}' ';'
 
 # Copy Nexutil build
-m4_ifelse(IS_RASPIOS, 1, [[COPY --from=build-nexutil --chown=root:root /usr/bin/nexutil /usr/bin/nexutil]])
+m4_ifelse(IS_RASPIOS, 1, [[COPY --from=build-nexutil --chown=root:root /usr/local/bin/nexutil /usr/local/bin/nexutil]])
 
 # Copy Bettercap build
-COPY --from=build-bettercap --chown=root:root /usr/bin/bettercap /usr/bin/bettercap
+COPY --from=build-bettercap --chown=root:root /usr/local/bin/bettercap /usr/local/bin/bettercap
 COPY --from=build-bettercap --chown=root:root /usr/local/share/bettercap/ /usr/local/share/bettercap/
 
 # Copy Bettercap caplets
 COPY --chown=root:root ./config/bettercap/caplets/ /usr/local/share/bettercap/caplets/
+RUN find /usr/local/share/bettercap/caplets/ -type d -not -perm 0755 -exec chmod 0755 '{}' ';'
+RUN find /usr/local/share/bettercap/caplets/ -type f -not -perm 0644 -exec chmod 0644 '{}' ';'
 
 # Copy PwnGRID build
-COPY --from=build-pwngrid --chown=root:root /usr/bin/pwngrid /usr/bin/pwngrid
+COPY --from=build-pwngrid --chown=root:root /usr/local/bin/pwngrid /usr/local/bin/pwngrid
 
 # Copy Pwnagotchi build
-COPY --from=build-pwnagotchi --chown=root:root /usr/lib/pwnagotchi/ /usr/lib/pwnagotchi/
-RUN ln -s /usr/lib/pwnagotchi/bin/pwnagotchi /usr/bin/pwnagotchi
+COPY --from=build-pwnagotchi --chown=root:root /usr/local/lib/pwnagotchi/ /usr/local/lib/pwnagotchi/
+RUN ln -s /usr/local/lib/pwnagotchi/bin/pwnagotchi /usr/local/bin/pwnagotchi
 
 # Copy Pwnagotchi config
 COPY --chown=root:root ./config/pwnagotchi/ /etc/pwnagotchi/
+RUN find /etc/pwnagotchi/ -type d -not -perm 0755 -exec chmod 0755 '{}' ';'
+RUN find /etc/pwnagotchi/ -type f -not -perm 0644 -exec chmod 0644 '{}' ';'
 
 # Copy scripts
-COPY --chown=root:root ./scripts/bin/ /usr/bin/
+COPY --chown=root:root ./scripts/bin/ /usr/local/bin/
+RUN find /usr/local/bin/ -type d -not -perm 0755 -exec chmod 0755 '{}' ';'
+RUN find /usr/local/bin/ -type f -not -perm 0755 -exec chmod 0755 '{}' ';'
 
 # Copy and enable services
 COPY --chown=root:root ./scripts/service/ /etc/systemd/system/
-RUN chmod 644 /etc/systemd/system/*.target /etc/systemd/system/*.service
+RUN find /etc/systemd/system/ -type f -regex '.+\.\(target\|service\)' -not -perm 0644 -exec chmod 0644 '{}' ';'
 RUN systemctl set-default container.target
 RUN systemctl enable bettercap.service pwnagotchi.service pwngrid.service
 
@@ -392,7 +399,7 @@ ENV PWNAGOTCHI_PERSONALITY_ASSOCIATE=true
 ENV PWNAGOTCHI_PERSONALITY_CHANNELS=[]
 
 HEALTHCHECK --start-period=30s --interval=10s --timeout=5s --retries=1 \
-CMD ["/usr/bin/container-healthcheck-cmd"]
+CMD ["/usr/local/bin/container-healthcheck"]
 
 STOPSIGNAL SIGRTMIN+3
-ENTRYPOINT ["/usr/bin/container-entrypoint-cmd"]
+ENTRYPOINT ["/usr/local/bin/container-init"]

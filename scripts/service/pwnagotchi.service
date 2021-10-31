@@ -6,7 +6,7 @@ After=bettercap.service pwngrid.service
 [Service]
 Type=simple
 EnvironmentFile=/etc/environment
-ExecStart=/usr/bin/service-pwnagotchi-start
+ExecStart=/usr/local/bin/service-pwnagotchi-start
 Restart=always
 RestartSec=30
 

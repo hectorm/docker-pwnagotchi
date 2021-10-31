@@ -3,7 +3,7 @@
 set -eu
 
 # shellcheck source=./pwnlib
-. /usr/bin/pwnlib
+. /usr/local/bin/pwnlib
 
 # Replace environment variables in the Bettercap caplets
 if [ -w /usr/local/share/bettercap/caplets/pwnagotchi-auto.cap ]; then
