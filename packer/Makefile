@@ -4,6 +4,7 @@ SHELL := /bin/sh
 .SHELLFLAGS := -eu -c
 
 PACKER := $(shell command -v packer 2>/dev/null)
+QEMU_IMG := $(shell command -v qemu-img 2>/dev/null)
 
 PACKER_WORK_DIR := ./
 PACKER_CACHE_DIR := ./packer_cache/
@@ -30,6 +31,7 @@ build-arm64: $(PACKER_ARM64_OUT)
 $(PACKER_ARM64_OUT):
 	mkdir -p '$(dir $(PACKER_ARM64_OUT))'
 	'$(PACKER)' build -force -only=arm-image.arm64 '$(PACKER_WORK_DIR)'
+	'$(QEMU_IMG)' resize -f raw '$(PACKER_ARM64_OUT)' 8G
 
 .PHONY: build-armhf
 build-armhf: $(PACKER_ARMHF_OUT)
@@ -37,6 +39,7 @@ build-armhf: $(PACKER_ARMHF_OUT)
 $(PACKER_ARMHF_OUT):
 	mkdir -p '$(dir $(PACKER_ARMHF_OUT))'
 	'$(PACKER)' build -force -only=arm-image.armhf '$(PACKER_WORK_DIR)'
+	'$(QEMU_IMG)' resize -f raw '$(PACKER_ARM64_OUT)' 8G
 
 ##################################################
 ## "clean" target
