@@ -47,6 +47,7 @@ build {
       <<EOF
         apt-get install -y \
           apt-transport-https \
+          bash \
           ca-certificates \
           crda \
           curl \
@@ -55,6 +56,7 @@ build {
           gnupg \
           htop \
           i2c-tools \
+          jq \
           openssh-server \
           zstd
       EOF
@@ -92,7 +94,14 @@ build {
           docker.service \
           dphys-swapfile.service \
           fstrim.timer \
+          pwnagotchi.service \
           ssh.service
+      EOF
+      ,
+      <<EOF
+        download-frozen-image /tmp/pwnagotchi-image/ hectormolinero/pwnagotchi:latest
+        tar -cf /var/lib/pwnagotchi-image.tar -C /tmp/pwnagotchi-image/ ./
+        rm -rf /tmp/pwnagotchi-image/
       EOF
       ,
       <<EOF

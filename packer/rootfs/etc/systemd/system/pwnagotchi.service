@@ -12,7 +12,18 @@ Environment=IMAGE=docker.io/hectormolinero/pwnagotchi
 Environment=TAG=latest
 ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/lib/pwnagotchi/
 ExecStartPre=/usr/bin/install -d -m 0755 -o 0 -g 0 /var/log/pwnagotchi/
-ExecStartPre=-/usr/bin/docker rm -f ${CONTAINER}
+ExecStartPre=/bin/sh -euc ' \
+	if docker ps -af name="${CONTAINER}" --format '{{.Names}}' | grep -Fxq "${CONTAINER}"; then \
+		docker rm -f "${CONTAINER}"; \
+	fi \
+'
+ExecStartPre=/bin/sh -euc ' \
+	if [ -e /var/lib/pwnagotchi-image.tar ]; then \
+		docker load -i /var/lib/pwnagotchi-image.tar; \
+		rm -f /var/lib/pwnagotchi-image.tar; \
+		docker system prune -f; \
+	fi \
+'
 ExecStart=/usr/bin/docker run \
 	--rm --name ${CONTAINER} --hostname %H \
 	--tty --attach STDOUT --attach STDERR \
@@ -27,7 +38,7 @@ ExecStart=/usr/bin/docker run \
 	--env-file /etc/pwnagotchi.env \
 	${IMAGE}:${TAG}
 ExecStop=/usr/bin/docker stop -t 60 ${CONTAINER}
-ExecStopPost=/usr/bin/reload-brcmfmac-driver
+ExecStopPost=/usr/local/bin/reload-brcmfmac-driver
 TimeoutStartSec=1800s
 TimeoutStopSec=60s
 Restart=always
