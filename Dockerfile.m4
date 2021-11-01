@@ -139,7 +139,8 @@ RUN git checkout "${BETTERCAP_TREEISH:?}"
 RUN git submodule update --init --recursive
 COPY ./patches/bettercap-*.patch ./
 RUN git apply -v ./bettercap-*.patch
-RUN go build -o ./dist/bettercap ./
+RUN go mod download -x
+RUN go build -v -o ./dist/bettercap ./
 RUN mv ./dist/bettercap /usr/local/bin/bettercap
 RUN file /usr/local/bin/bettercap
 RUN /usr/local/bin/bettercap --version
@@ -175,7 +176,8 @@ WORKDIR /tmp/pwngrid/
 RUN git clone "${PWNGRID_REMOTE:?}" ./
 RUN git checkout "${PWNGRID_TREEISH:?}"
 RUN git submodule update --init --recursive
-RUN go build -o ./dist/pwngrid ./cmd/pwngrid/*.go
+RUN go mod download -x
+RUN go build -v -o ./dist/pwngrid ./cmd/pwngrid/*.go
 RUN mv ./dist/pwngrid /usr/local/bin/pwngrid
 RUN file /usr/local/bin/pwngrid
 RUN /usr/local/bin/pwngrid --version
