@@ -39,7 +39,7 @@ build-armhf: $(PACKER_ARMHF_OUT)
 $(PACKER_ARMHF_OUT):
 	mkdir -p '$(dir $(PACKER_ARMHF_OUT))'
 	'$(PACKER)' build -force -only=arm-image.armhf '$(PACKER_WORK_DIR)'
-	'$(QEMU_IMG)' resize -f raw '$(PACKER_ARM64_OUT)' 8G
+	'$(QEMU_IMG)' resize -f raw '$(PACKER_ARMHF_OUT)' 8G
 
 ##################################################
 ## "clean" target
