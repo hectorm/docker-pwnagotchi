@@ -255,10 +255,10 @@ RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
 
 ##################################################
-## "pwnagotchi" stage
+## "main" stage
 ##################################################
 
-FROM base AS pwnagotchi
+FROM base AS main
 
 # Install system packages
 RUN export DEBIAN_FRONTEND=noninteractive \
