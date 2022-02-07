@@ -2,7 +2,7 @@
 
 set -eu
 
-NEXMON_TREEISH='e3c87c1e128ce6e764e8b8d5e7aa67be886646c9'
+NEXMON_TREEISH='d90cf1a943f264a181601a6ba6a93357ebabb338'
 NEXMON_REMOTE='https://github.com/seemoo-lab/nexmon.git'
 NEXMON_SRCDIR='/usr/local/src/nexmon/'
 
