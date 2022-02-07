@@ -1,40 +1,31 @@
 #!/usr/bin/make -f
 
 SHELL := /bin/sh
-.SHELLFLAGS := -eu -c
+.SHELLFLAGS := -euc
 
 DOCKER := $(shell command -v docker 2>/dev/null)
 GIT := $(shell command -v git 2>/dev/null)
 M4 := $(shell command -v m4 2>/dev/null)
 
 DISTDIR := ./dist
-VERSION_FILE = ./VERSION
 DOCKERFILE_TEMPLATE := ./Dockerfile.m4
 
 IMAGE_REGISTRY := docker.io
 IMAGE_NAMESPACE := hectormolinero
 IMAGE_PROJECT := pwnagotchi
 IMAGE_NAME := $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_PROJECT)
-
-IMAGE_VERSION := v0
-ifneq ($(wildcard $(VERSION_FILE)),)
-	IMAGE_VERSION := $(shell cat '$(VERSION_FILE)')
-endif
+IMAGE_VERSION := $(shell '$(GIT)' describe --abbrev=0 2>/dev/null || printf 'v0')
 
 IMAGE_BUILD_OPTS :=
 
 IMAGE_NATIVE_DOCKERFILE := $(DISTDIR)/Dockerfile
 IMAGE_NATIVE_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).tzst
-
 IMAGE_GENERIC_AMD64_DOCKERFILE := $(DISTDIR)/Dockerfile.generic-amd64
 IMAGE_GENERIC_AMD64_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).generic-amd64.tzst
-
 IMAGE_RASPIOS_ARM64V8_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm64v8
 IMAGE_RASPIOS_ARM64V8_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm64v8.tzst
-
 IMAGE_RASPIOS_ARM32V7_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm32v7
 IMAGE_RASPIOS_ARM32V7_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v7.tzst
-
 IMAGE_RASPIOS_ARM32V6_DOCKERFILE := $(DISTDIR)/Dockerfile.raspios-arm32v6
 IMAGE_RASPIOS_ARM32V6_TARBALL := $(DISTDIR)/$(IMAGE_PROJECT).raspios-arm32v6.tzst
 
@@ -59,7 +50,8 @@ $(IMAGE_NATIVE_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 	mkdir -p '$(DISTDIR)'
 	'$(M4)' \
 		--prefix-builtins \
-		-D DEBIAN_IMAGE_NAME=docker.io/debian -D DEBIAN_IMAGE_TAG=buster \
+		--define=DEBIAN_IMAGE_NAME=docker.io/debian \
+		--define=DEBIAN_IMAGE_TAG=buster \
 		'$(DOCKERFILE_TEMPLATE)' | cat --squeeze-blank > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)' \
@@ -76,8 +68,9 @@ $(IMAGE_GENERIC_AMD64_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 	mkdir -p '$(DISTDIR)'
 	'$(M4)' \
 		--prefix-builtins \
-		-D DEBIAN_IMAGE_NAME=docker.io/amd64/debian -D DEBIAN_IMAGE_TAG=buster \
-		-D CROSS_QEMU=/usr/bin/qemu-x86_64-static \
+		--define=DEBIAN_IMAGE_NAME=docker.io/amd64/debian \
+		--define=DEBIAN_IMAGE_TAG=buster \
+		--define=CROSS_QEMU=/usr/bin/qemu-x86_64-static \
 		'$(DOCKERFILE_TEMPLATE)' | cat --squeeze-blank > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-generic-amd64' \
@@ -91,8 +84,9 @@ $(IMAGE_RASPIOS_ARM64V8_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 	mkdir -p '$(DISTDIR)'
 	'$(M4)' \
 		--prefix-builtins \
-		-D DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian -D DEBIAN_IMAGE_TAG=buster \
-		-D CROSS_QEMU=/usr/bin/qemu-aarch64-static \
+		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
+		--define=DEBIAN_IMAGE_TAG=buster \
+		--define=CROSS_QEMU=/usr/bin/qemu-aarch64-static \
 		'$(DOCKERFILE_TEMPLATE)' | cat --squeeze-blank > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm64v8' \
@@ -106,8 +100,9 @@ $(IMAGE_RASPIOS_ARM32V7_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 	mkdir -p '$(DISTDIR)'
 	'$(M4)' \
 		--prefix-builtins \
-		-D DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian -D DEBIAN_IMAGE_TAG=buster \
-		-D CROSS_QEMU=/usr/bin/qemu-arm-static \
+		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
+		--define=DEBIAN_IMAGE_TAG=buster \
+		--define=CROSS_QEMU=/usr/bin/qemu-arm-static \
 		'$(DOCKERFILE_TEMPLATE)' | cat --squeeze-blank > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm32v7' \
@@ -121,8 +116,9 @@ $(IMAGE_RASPIOS_ARM32V6_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 	mkdir -p '$(DISTDIR)'
 	'$(M4)' \
 		--prefix-builtins \
-		-D DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian -D DEBIAN_IMAGE_TAG=buster \
-		-D CROSS_QEMU=/usr/bin/qemu-arm-static \
+		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
+		--define=DEBIAN_IMAGE_TAG=buster \
+		--define=CROSS_QEMU=/usr/bin/qemu-arm-static \
 		'$(DOCKERFILE_TEMPLATE)' | cat --squeeze-blank > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm32v6' \
@@ -274,8 +270,7 @@ binfmt-register:
 version:
 	@if printf '%s' '$(IMAGE_VERSION)' | grep -q '^v[0-9]\{1,\}$$'; then \
 		NEW_IMAGE_VERSION=$$(awk -v 'v=$(IMAGE_VERSION)' 'BEGIN {printf "v%.0f", substr(v,2)+1}'); \
-		printf '%s\n' "$${NEW_IMAGE_VERSION:?}" > '$(VERSION_FILE)'; \
-		'$(GIT)' add '$(VERSION_FILE)'; '$(GIT)' commit -m "$${NEW_IMAGE_VERSION:?}"; \
+		'$(GIT)' commit --allow-empty -m "$${NEW_IMAGE_VERSION:?}"; \
 		'$(GIT)' tag -a "$${NEW_IMAGE_VERSION:?}" -m "$${NEW_IMAGE_VERSION:?}"; \
 	else \
 		>&2 printf 'Malformed version string: %s\n' '$(IMAGE_VERSION)'; \
