@@ -60,9 +60,14 @@ FROM build-base AS build-python
 RUN export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
+		cython3 \
 		python3 \
 		python3-dev \
+		python3-distutils \
+		python3-pip \
+		python3-setuptools \
 		python3-venv \
+		python3-wheel \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV PIP_NO_CACHE_DIR=0
