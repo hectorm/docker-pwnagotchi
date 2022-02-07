@@ -1,7 +1,6 @@
 stages:
-  - 'build:images'
-  - 'push:images'
-  - 'push:manifests'
+  - 'build'
+  - 'push'
 
 variables:
   DOCKER_HOST: 'tcp://dockerd:2376'
@@ -15,19 +14,17 @@ default:
     - name: 'docker.io/docker:dind'
       alias: 'dockerd'
 
-.cmds:
-  - &cmd_install_build_packages 'apk add --no-cache coreutils git m4 make zstd'
-  - &cmd_install_push_packages  'apk add --no-cache coreutils git make zstd'
-  - &cmd_docker_login_registry  'docker login -u "${CI_REGISTRY_USER:?}" -p "${CI_REGISTRY_PASSWORD:?}" "${CI_REGISTRY:?}"'
-
-.regexes:
+.anchors:
+  - &cmd_install_packages 'apk add --no-cache coreutils git m4 make zstd'
+  - &cmd_docker_login_registry 'docker login -u "${CI_REGISTRY_USER:?}" -p "${CI_REGISTRY_PASSWORD:?}" "${CI_REGISTRY:?}"'
+  - &matrix_arch ['generic-amd64', 'raspios-arm64v8', 'raspios-arm32v7', 'raspios-arm32v6']
   - &regex_version '/^v[0-9]+$/'
 
-build:images:native:
-  stage: 'build:images'
+build:native:
+  stage: 'build'
   except: [*regex_version]
   before_script:
-    - *cmd_install_build_packages
+    - *cmd_install_packages
   script:
     - 'make IMAGE_BUILD_OPTS="--pull" build-native-image save-native-image'
   artifacts:
@@ -35,11 +32,14 @@ build:images:native:
     paths:
       - './dist/'
 
-.build:images:cross:
-  stage: 'build:images'
+build:cross:
+  stage: 'build'
   only: [*regex_version]
+  parallel:
+    matrix:
+      - ARCH: *matrix_arch
   before_script:
-    - *cmd_install_build_packages
+    - *cmd_install_packages
   script:
     - 'make binfmt-register'
     - 'make IMAGE_BUILD_OPTS="--pull" "build-${ARCH:?}-image" "save-${ARCH:?}-image"'
@@ -48,59 +48,27 @@ build:images:native:
     paths:
       - './dist/'
 
-build:images:generic-amd64:
-  extends: '.build:images:cross'
-  variables: {ARCH: 'generic-amd64'}
-
-build:images:raspios-arm64v8:
-  extends: '.build:images:cross'
-  variables: {ARCH: 'raspios-arm64v8'}
-
-build:images:raspios-arm32v7:
-  extends: '.build:images:cross'
-  variables: {ARCH: 'raspios-arm32v7'}
-
-build:images:raspios-arm32v6:
-  extends: '.build:images:cross'
-  variables: {ARCH: 'raspios-arm32v6'}
-
-.push:images:cross:
-  stage: 'push:images'
+push:cross:
+  stage: 'push'
+  needs: ['build:cross']
   only: [*regex_version]
+  parallel:
+    matrix:
+      - ARCH: *matrix_arch
   before_script:
-    - *cmd_install_push_packages
+    - *cmd_install_packages
     - *cmd_docker_login_registry
   script:
     - 'make "load-${ARCH:?}-image" "push-${ARCH:?}-image"'
 
-push:images:generic-amd64:
-  extends: '.push:images:cross'
-  dependencies: ['build:images:generic-amd64']
-  variables: {ARCH: 'generic-amd64'}
-
-push:images:raspios-arm64v8:
-  extends: '.push:images:cross'
-  dependencies: ['build:images:raspios-arm64v8']
-  variables: {ARCH: 'raspios-arm64v8'}
-
-push:images:raspios-arm32v7:
-  extends: '.push:images:cross'
-  dependencies: ['build:images:raspios-arm32v7']
-  variables: {ARCH: 'raspios-arm32v7'}
-
-push:images:raspios-arm32v6:
-  extends: '.push:images:cross'
-  dependencies: ['build:images:raspios-arm32v6']
-  variables: {ARCH: 'raspios-arm32v6'}
-
-push:manifests:cross:
-  stage: 'push:manifests'
-  dependencies: ['push:images:generic-amd64', 'push:images:raspios-arm64v8', 'push:images:raspios-arm32v7', 'push:images:raspios-arm32v6']
+push:manifest:
+  stage: 'push'
+  needs: ['push:cross']
   only: [*regex_version]
   variables:
     DOCKER_CLI_EXPERIMENTAL: 'enabled'
   before_script:
-    - *cmd_install_push_packages
+    - *cmd_install_packages
     - *cmd_docker_login_registry
   script:
     - 'make push-cross-manifest'
