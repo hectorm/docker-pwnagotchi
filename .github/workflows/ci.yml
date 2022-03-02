@@ -18,7 +18,7 @@ jobs:
         arch: ['generic-amd64', 'raspios-arm64v8', 'raspios-arm32v7', 'raspios-arm32v6']
     steps:
       - name: 'Checkout project'
-        uses: 'actions/checkout@v1'
+        uses: 'actions/checkout@v3'
       - name: 'Build image'
         run: |
           make binfmt-register
