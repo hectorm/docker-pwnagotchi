@@ -46,7 +46,6 @@ build {
       ,
       <<EOF
         apt-get install -y \
-          apt-transport-https \
           bash \
           ca-certificates \
           crda \
@@ -99,7 +98,7 @@ build {
       EOF
       ,
       <<EOF
-        download-frozen-image /tmp/pwnagotchi-image/ hectormolinero/pwnagotchi:latest
+        download-frozen-image /tmp/pwnagotchi-image/ hectorm/pwnagotchi:latest
         tar -cf /var/lib/pwnagotchi-image.tar -C /tmp/pwnagotchi-image/ ./
         rm -rf /tmp/pwnagotchi-image/
       EOF

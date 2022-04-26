@@ -10,7 +10,7 @@ m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[rpi]]), [[-1]],
 ##################################################
 
 FROM DEBIAN_IMAGE_NAME:DEBIAN_IMAGE_TAG AS base
-m4_ifdef([[CROSS_QEMU]], [[COPY --from=docker.io/hectormolinero/qemu-user-static:latest CROSS_QEMU CROSS_QEMU]])
+m4_ifdef([[CROSS_QEMU]], [[COPY --from=docker.io/hectorm/qemu-user-static:latest CROSS_QEMU CROSS_QEMU]])
 
 # Install base packages
 RUN export DEBIAN_FRONTEND=noninteractive \
