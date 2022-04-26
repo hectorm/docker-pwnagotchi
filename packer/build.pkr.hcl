@@ -73,8 +73,8 @@ build {
       EOF
       ,
       <<EOF
-        printf '%s\n' "deb [arch=armhf] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
-        curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | apt-key add -
+        curl --proto '=https' --tlsv1.3 -sSf 'https://download.docker.com/linux/raspbian/gpg' | gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
+        printf '%s\n' "deb [arch=armhf signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/raspbian/ $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
         apt-get update && apt-get install -y docker-ce
       EOF
       ,
