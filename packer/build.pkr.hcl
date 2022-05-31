@@ -1,6 +1,5 @@
 build {
   sources = [
-    "source.arm-image.arm64",
     "source.arm-image.armhf"
   ]
 
