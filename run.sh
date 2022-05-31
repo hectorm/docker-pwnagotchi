@@ -44,7 +44,6 @@ printf '%s\n' "Creating \"${CONTAINER_NAME:?}\" container..."
 	--env PWNAGOTCHI_PLUGIN_LED_ENABLED=false \
 	--mount type=tmpfs,dst=/run/,tmpfs-mode=0755 \
 	--mount type=tmpfs,dst=/tmp/,tmpfs-mode=1777 \
-	--mount type=bind,src=/sys/fs/cgroup/,dst=/sys/fs/cgroup/,ro \
 	"${IMAGE_NAME:?}" "$@" >/dev/null
 
 printf '%s\n\n' 'Done!'
