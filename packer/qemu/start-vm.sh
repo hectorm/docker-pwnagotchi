@@ -25,7 +25,7 @@ trap 'ret="$?"; rm -rf -- "${TMP_DIR:?}"; trap - EXIT; exit "${ret:?}"' EXIT TER
 
 # Launch VM
 qemu-system-aarch64 \
-	-machine raspi3 -m 1024 \
+	-machine raspi3b -m 1024 \
 	-kernel "${RPI_KERNEL_FILE:?}" -dtb "${RPI_DTB_FILE:?}" \
 	-append 'console=ttyAMA0 root=/dev/mmcblk0p2 fsck.repair=no rootwait systemd.mask=rpi-eeprom-update.service systemd.mask=hciuart.service' \
 	-nographic -serial mon:stdio \
