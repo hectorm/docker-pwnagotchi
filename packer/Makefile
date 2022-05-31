@@ -10,6 +10,10 @@ PACKER_WORK_DIR := ./
 PACKER_CACHE_DIR := ./packer_cache/
 PACKER_ARMHF_OUT := ./dist/armhf/pwnagotchi.img
 
+ifneq ($(SUDO_USER),)
+	export HOME := $(shell getent passwd "$(SUDO_USER)" | cut -d: -f6)
+endif
+
 ##################################################
 ## "all" target
 ##################################################
