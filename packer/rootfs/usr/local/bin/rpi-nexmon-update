@@ -2,33 +2,24 @@
 
 set -eu
 
-NEXMON_TREEISH='d90cf1a943f264a181601a6ba6a93357ebabb338'
-NEXMON_REMOTE='https://github.com/seemoo-lab/nexmon.git'
+NEXMON_TREEISH='cea7c4b952b3e67110dc1032b8996dae0db9a857'
+NEXMON_REMOTE='https://github.com/hectorm/nexmon.git'
 NEXMON_SRCDIR='/usr/local/src/nexmon/'
-
-BRCMFMAC_NVRAM_URL='https://raw.githubusercontent.com/openwrt/cypress-nvram/e7b78df22f2a0c5f56abb7b5880661611de35e5f/brcmfmac43430-sdio.raspberrypi%2Cmodel-zero-w.txt'
-
-KERNEL_PKG_VERSION='1.20210108-1' # Latest version with a 5.4 kernel
-KERNEL_PKG_ARCH="$(dpkg --print-architecture)"
+BRCMFMAC_NVRAM_URL='https://raw.githubusercontent.com/openwrt/cypress-nvram/de707b6d535e566479c2ed3e1d09ae5393aa7db3/brcmfmac43430-sdio.raspberrypi%2Cmodel-zero-w.txt'
 
 # Install dependencies
 apt-get update
-apt-get install -y autoconf automake automake-1.15 bison build-essential flex gawk git libtool-bin pkgconf
-apt-get install -y debianutils libfl-dev libgmp-dev libgmp3-dev qpdf texinfo
+apt-get install -y \
+	autoconf automake automake-1.15 bison build-essential flex gawk git libtool-bin pkgconf \
+	debianutils libfl-dev libgmp-dev libgmp3-dev qpdf texinfo \
+	raspberrypi-kernel raspberrypi-kernel-headers
 
 # Freeze Broadcom/Cypress 802.11 firmware package
 apt-mark hold firmware-brcm80211
 
-# Install and freeze a specific kernel version
-for pkg in raspberrypi-bootloader raspberrypi-kernel raspberrypi-kernel-headers libraspberrypi0 libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc; do
-	if [ "$(dpkg -s "${pkg:?}" | awk '/^Version:/{print($2)}')" != "${KERNEL_PKG_VERSION:?}" ]; then
-		curl -o "/tmp/${pkg:?}.deb" "https://archive.raspberrypi.org/debian/pool/main/r/raspberrypi-firmware/${pkg:?}_${KERNEL_PKG_VERSION:?}_${KERNEL_PKG_ARCH:?}.deb"
-		dpkg --install --force-downgrade "/tmp/${pkg:?}.deb"; apt-mark hold "${pkg:?}"; rm -f "/tmp/${pkg:?}.deb"
-	fi
-done
-
 # Get kernel release
-KERNEL_RELEASE="$(dpkg -L raspberrypi-kernel | grep -Eom1 '5\.4\.[0-9]+\+')"
+KERNEL_VERSION="$(dpkg -L raspberrypi-kernel | grep -Pom1 '(?<=/lib/modules/)[0-9]+(\.[0-9]+)+\+(?=/)')"
+KERNEL_VERSION_MINOR="$(printf '%s' "${KERNEL_VERSION:?}" | grep -Pom1 '^[0-9]+\.[0-9]+')"
 
 # Create source directory
 rm -rf "${NEXMON_SRCDIR:?}"
@@ -68,8 +59,8 @@ make ./brcmfmac43430-sdio.bin
 install -Dm 644 ./brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
 curl -Lo /lib/firmware/brcm/brcmfmac43430-sdio.raspberrypi,model-zero-w.txt "${BRCMFMAC_NVRAM_URL:?}"
 cd "${NEXMON_SRCDIR:?}"/patches/bcm43455c0/7_45_206/nexmon/
-make -C /lib/modules/"${KERNEL_RELEASE:?}"/build M="${PWD:?}"/brcmfmac_5.4.y-nexmon -j2
-install -Dm 644 ./brcmfmac_5.4.y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_RELEASE:?}"/kernel/drivers/net/wireless/broadcom/brcm80211/brcmfmac/brcmfmac.ko
+make -C /lib/modules/"${KERNEL_VERSION:?}"/build M="${PWD:?}"/brcmfmac_"${KERNEL_VERSION_MINOR:?}".y-nexmon -j2
+install -Dm 644 ./brcmfmac_"${KERNEL_VERSION_MINOR:?}".y-nexmon/brcmfmac.ko /lib/modules/"${KERNEL_VERSION:?}"/kernel/drivers/net/wireless/broadcom/brcm80211/brcmfmac/brcmfmac.ko
 
 # Build and install nexutil
 cd "${NEXMON_SRCDIR:?}"/utilities/nexutil/
