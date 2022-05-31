@@ -42,6 +42,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		build-essential \
+		cmake \
 		file \
 		git \
 		jq \
@@ -104,7 +105,7 @@ m4_ifelse(IS_RASPIOS, 1, [[
 FROM build-base AS build-nexutil
 
 # Build Nexutil
-ARG NEXMON_TREEISH=d90cf1a943f264a181601a6ba6a93357ebabb338
+ARG NEXMON_TREEISH=4087b4e5a408e6e1c4e5cbf4fd098b74bf74cdfa
 ARG NEXMON_REMOTE=https://github.com/seemoo-lab/nexmon.git
 RUN mkdir /tmp/nexmon/
 WORKDIR /tmp/nexmon/
@@ -238,7 +239,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=a5d5533acf9ebf0d70b12b7631b5119aea5b7b3b
+ARG PWNAGOTCHI_TREEISH=cd50cf74186b99b39b34ca953e3ce7c2bb14bfa6
 ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
 RUN mkdir /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
@@ -247,16 +248,14 @@ RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
 RUN git submodule update --init --recursive
 # Modify some hardcoded paths
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
-# Fix dependency constraint mismatch (https://github.com/piwheels/packages/issues/66)
-m4_ifelse(IS_RASPIOS, 0, [[RUN sed -ri 's/^(tensorflow-estimator)==.*$/\1==1.13.0/' ./requirements.txt]])
-# Enable "rpi" optional feature in the "inky" module
-m4_ifelse(IS_RASPIOS, 1, [[RUN sed -ri 's/^(inky)==(.*)$/\1[rpi]==\2/' ./requirements.txt]])
 # Create virtual environment and install requirements
 ENV PWNAGOTCHI_VENV=/usr/local/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
-RUN python3 -m venv "${PWNAGOTCHI_VENV:?}"
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install --prefer-binary -r ./requirements.txt
-RUN "${PWNAGOTCHI_VENV:?}"/bin/pip install ./
+COPY ./requirements.txt ./requirements.txt
+RUN python3 -m venv --symlinks "${PWNAGOTCHI_VENV:?}"
+RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install --upgrade pip
+RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install -r ./requirements.txt
+RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
 
 ##################################################
