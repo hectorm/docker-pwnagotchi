@@ -4,8 +4,8 @@ build {
   ]
 
   provisioner "file" {
-    direction = "upload"
-    source = "./rootfs"
+    direction   = "upload"
+    source      = "./rootfs"
     destination = "/tmp"
   }
 
@@ -18,7 +18,7 @@ build {
       "DEBIAN_FRONTEND=noninteractive",
       "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     ]
-    skip_clean = true
+    skip_clean      = true
     execute_command = "/usr/bin/env -i {{ .Vars }} /bin/sh -eux {{ .Path }}"
     inline = [
       <<EOF
