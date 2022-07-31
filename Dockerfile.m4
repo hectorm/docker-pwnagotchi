@@ -239,7 +239,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=cd50cf74186b99b39b34ca953e3ce7c2bb14bfa6
+ARG PWNAGOTCHI_TREEISH=a7aee8615aeeea5ceed442a0e9cef5038c0c126e
 ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
 RUN mkdir /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
