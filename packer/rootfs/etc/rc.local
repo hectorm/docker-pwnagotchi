@@ -7,8 +7,8 @@ if [ -n "${IP_ADDRESS?}" ]; then
 	printf '%s\n' "My IP address is: ${IP_ADDRESS:?}"
 fi
 
-if [ -e /opt/vc/bin/tvservice ] && ! /opt/vc/bin/tvservice -s | grep -Eq 'HDMI|DVI'; then
-	/opt/vc/bin/tvservice -o
+if [ -c /dev/vchiq ] && ! tvservice --status | grep -Eq 'HDMI|DVI'; then
+	tvservice --off
 fi
 
 exit 0
