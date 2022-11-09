@@ -16,7 +16,7 @@ jobs:
 
   validate-packer:
     name: 'Validate Packer configuration'
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
     permissions:
       contents: 'read'
     defaults:
@@ -27,7 +27,7 @@ jobs:
         uses: 'actions/checkout@v3'
       - name: 'Install dependencies'
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
+          curl --proto '=https' --tlsv1.3 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
           printf '%s\n' "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
           sudo apt-get update && sudo apt-get install -y --no-install-recommends packer
       - name: 'Init Packer'
@@ -43,7 +43,7 @@ jobs:
   build-packer:
     name: 'Build Packer image'
     needs: ['validate-packer']
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
     permissions:
       contents: 'read'
     defaults:
@@ -54,7 +54,7 @@ jobs:
         uses: 'actions/checkout@v3'
       - name: 'Install dependencies'
         run: |
-          curl --proto '=https' --tlsv1.2 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
+          curl --proto '=https' --tlsv1.3 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
           printf '%s\n' "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/trusted.gpg.d/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null
           sudo apt-get update && sudo apt-get install -y --no-install-recommends packer qemu-utils qemu-system-x86
       - name: 'Init Packer'
