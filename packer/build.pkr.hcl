@@ -82,6 +82,7 @@ build {
       EOF
       ,
       <<EOF
+        systemctl set-default multi-user.target
         systemctl disable \
           apt-daily-upgrade.timer \
           apt-daily.timer \
