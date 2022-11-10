@@ -79,6 +79,7 @@ build {
       ,
       <<EOF
         rpi-nexmon-update
+        rm -rf /usr/local/src/nexmon/
       EOF
       ,
       <<EOF
