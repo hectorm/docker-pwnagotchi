@@ -105,8 +105,9 @@ build {
       ,
       <<EOF
         rm -f /etc/ssh/ssh_host_*key*
-        find /var/lib/apt/lists/ -mindepth 1 -delete
+        find /var/lib/apt/lists/ -mindepth 1 -delete; apt-get clean
         find / -type f -regex '.+\.\(dpkg\|ucf\)-\(old\|new\|dist\)' -ignore_readdir_race -delete ||:
+        find /tmp/ /var/tmp/ -ignore_readdir_race -mindepth 1 -delete ||:
       EOF
     ]
   }
