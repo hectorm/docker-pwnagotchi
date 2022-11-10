@@ -8,5 +8,5 @@ source "arm-image" "armhf" {
   qemu_args   = ["-cpu", "arm1176"]
 
   output_filename   = "./dist/armhf/pwnagotchi.img"
-  target_image_size = 6442450944
+  target_image_size = 6*1024*1024*1024
 }
