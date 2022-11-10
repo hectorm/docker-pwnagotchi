@@ -22,12 +22,19 @@ KERNEL_VERSION="$(dpkg -L raspberrypi-kernel | grep -Pom1 '(?<=/lib/modules/)[0-
 KERNEL_VERSION_MINOR="$(printf '%s' "${KERNEL_VERSION:?}" | grep -Pom1 '^[0-9]+\.[0-9]+')"
 
 # Create source directory
-rm -rf "${NEXMON_SRCDIR:?}"
-mkdir -p "${NEXMON_SRCDIR:?}"
+if [ ! -e "${NEXMON_SRCDIR:?}" ]; then
+	rm -rf "${NEXMON_SRCDIR:?}"
+	mkdir -p "${NEXMON_SRCDIR:?}"
+fi
 
 # Clone project
 cd "${NEXMON_SRCDIR:?}"
-git clone "${NEXMON_REMOTE:?}" ./
+if [ ! -e "${NEXMON_SRCDIR:?}"/.git/ ]; then
+	git clone "${NEXMON_REMOTE:?}" ./
+else
+	git reset --hard HEAD
+	git clean -d --force
+fi
 git checkout "${NEXMON_TREEISH:?}"
 git submodule update --init --recursive
 
