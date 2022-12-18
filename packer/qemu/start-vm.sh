@@ -4,20 +4,32 @@ set -eu
 export LC_ALL=C
 
 SRC_DIR=$(CDPATH='' cd -- "$(dirname -- "$(dirname -- "${0:?}")")" && pwd -P)
-CACHE_DIR=${XDG_CACHE_HOME:-${HOME:?}/.cache}
+TMP_DIR=$(mktemp -d)
 
 ARCH=${1-armhf}
-DISK=${SRC_DIR:?}/dist/${ARCH:?}/pwnagotchi.img
+ORIGINAL_DISK=${SRC_DIR:?}/dist/${ARCH:?}/pwnagotchi.img
+SNAPSHOT_DISK=${TMP_DIR:?}/snapshot.qcow2
 
-RPI_KERNEL_URL='https://raw.githubusercontent.com/raspberrypi/firmware/1.20220308/boot/kernel8.img'
-RPI_KERNEL_FILE=${2-${CACHE_DIR:?}/raspberrypi/firmware/1.20220308/boot/kernel8.img}
+# Remove temporary files on exit
+# shellcheck disable=SC2154
+trap 'ret="$?"; rm -rf -- "${TMP_DIR:?}"; trap - EXIT; exit "${ret:?}"' EXIT TERM INT HUP
 
-RPI_DTB_URL='https://raw.githubusercontent.com/raspberrypi/firmware/1.20220308/boot/bcm2710-rpi-3-b.dtb'
-RPI_DTB_FILE=${3-${CACHE_DIR:?}/raspberrypi/firmware/1.20220308/boot/bcm2710-rpi-3-b.dtb}
+# Mount boot partition
+mkdir "${TMP_DIR:?}"/boot/
+guestmount --ro --format=raw --add "${ORIGINAL_DISK:?}" --mount /dev/sda1:/ --pid-file "${TMP_DIR:?}"/guestmount.pid "${TMP_DIR:?}"/boot/
+GUESTMOUNT_PID=$(cat "${TMP_DIR:?}"/guestmount.pid)
 
-# Download RPI kernel and DTB
-[ -e "${RPI_KERNEL_FILE:?}" ] || { mkdir -p "$(dirname "${RPI_KERNEL_FILE:?}")" && curl --proto '=https' --tlsv1.3 -Lo "${RPI_KERNEL_FILE:?}" "${RPI_KERNEL_URL:?}"; }
-[ -e "${RPI_DTB_FILE:?}"    ] || { mkdir -p "$(dirname "${RPI_DTB_FILE:?}" )"   && curl --proto '=https' --tlsv1.3 -Lo "${RPI_DTB_FILE:?}"    "${RPI_DTB_URL:?}";    }
+# Copy kernel and dtb files
+cp "${TMP_DIR:?}"/boot/kernel8.img "${TMP_DIR:?}"/kernel.img
+cp "${TMP_DIR:?}"/boot/bcm2710-rpi-3-b.dtb "${TMP_DIR:?}"/rpi.dtb
+
+# Unmount boot partition
+guestunmount "${TMP_DIR:?}"/boot/
+while kill -0 "${GUESTMOUNT_PID:?}" 2>/dev/null; do sleep 1; done
+
+# Create a snapshot image to preserve the original image
+qemu-img create -f qcow2 -b "${ORIGINAL_DISK:?}" -F raw "${SNAPSHOT_DISK:?}"
+qemu-img resize "${SNAPSHOT_DISK:?}" 8G
 
 # Remove keys from the known_hosts file
 ssh-keygen -R '[127.0.0.1]:1122' 2>/dev/null
@@ -27,9 +39,9 @@ ssh-keygen -R '[localhost]:1122' 2>/dev/null
 hostfwd() { printf ',hostfwd=%s::%s-:%s' "$@"; }
 
 # Launch VM
-exec qemu-system-aarch64 \
+qemu-system-aarch64 \
 	-machine raspi3b \
-	-kernel "${RPI_KERNEL_FILE:?}" -dtb "${RPI_DTB_FILE:?}" \
+	-kernel "${TMP_DIR:?}"/kernel.img -dtb "${TMP_DIR:?}"/rpi.dtb \
 	-append "$(printf '%s ' \
 		'console=ttyAMA0 root=/dev/mmcblk0p2 rootfstype=ext4 fsck.repair=no rootwait' \
 		'systemd.mask=rpi-eeprom-update.service systemd.mask=hciuart.service'
@@ -39,4 +51,4 @@ exec qemu-system-aarch64 \
 	-netdev user,id=n0,ipv4=on,ipv6=off,net=10.3.14.0/24,host=10.3.14.1"$(hostfwd \
 		tcp 1122 22 \
 	)" \
-	-drive file="${DISK:?}",if=sd,format=raw,snapshot=on
+	-drive file="${SNAPSHOT_DISK:?}",if=sd,format=qcow2
