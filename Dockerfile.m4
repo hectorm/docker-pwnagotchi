@@ -6,6 +6,58 @@ m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[rpi]]), [[-1]],
 )
 
 ##################################################
+## "projects" stage
+##################################################
+
+FROM docker.io/alpine:3 AS projects
+
+RUN apk add --no-cache ca-certificates curl git unzip
+
+# Download Nexmon
+ARG NEXMON_TREEISH=cea7c4b952b3e67110dc1032b8996dae0db9a857
+ARG NEXMON_REMOTE=https://github.com/hectorm/nexmon.git
+RUN mkdir /tmp/nexmon/
+WORKDIR /tmp/nexmon/
+RUN git clone "${NEXMON_REMOTE:?}" ./
+RUN git checkout "${NEXMON_TREEISH:?}"
+RUN git submodule update --init --recursive
+
+# Download Bettercap
+ARG BETTERCAP_TREEISH=v2.32.0
+ARG BETTERCAP_REMOTE=https://github.com/bettercap/bettercap.git
+RUN mkdir /tmp/bettercap/
+WORKDIR /tmp/bettercap/
+RUN git clone "${BETTERCAP_REMOTE:?}" ./
+RUN git checkout "${BETTERCAP_TREEISH:?}"
+RUN git submodule update --init --recursive
+
+# Download Bettercap UI
+ARG BETTERCAP_UI_VERSION=v1.3.0
+ARG BETTERCAP_UI_PKG_URL=https://github.com/bettercap/ui/releases/download/${BETTERCAP_UI_VERSION}/ui.zip
+RUN mkdir /tmp/bettercap/dist/
+WORKDIR /tmp/bettercap/dist/
+RUN curl -Lo ./ui.zip "${BETTERCAP_UI_PKG_URL:?}"
+RUN unzip -q ./ui.zip
+
+# Download PwnGRID
+ARG PWNGRID_TREEISH=v1.10.3
+ARG PWNGRID_REMOTE=https://github.com/evilsocket/pwngrid.git
+RUN mkdir /tmp/pwngrid/
+WORKDIR /tmp/pwngrid/
+RUN git clone "${PWNGRID_REMOTE:?}" ./
+RUN git checkout "${PWNGRID_TREEISH:?}"
+RUN git submodule update --init --recursive
+
+# Download Pwnagotchi
+ARG PWNAGOTCHI_TREEISH=544314b88cee7f2ee488b49bd61636d664a4c7fa
+ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
+RUN mkdir /tmp/pwnagotchi/
+WORKDIR /tmp/pwnagotchi/
+RUN git clone "${PWNAGOTCHI_REMOTE:?}" ./
+RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
+RUN git submodule update --init --recursive
+
+##################################################
 ## "base" stage
 ##################################################
 
@@ -105,13 +157,7 @@ m4_ifelse(IS_RASPIOS, 1, [[
 FROM build-base AS build-nexutil
 
 # Build Nexutil
-ARG NEXMON_TREEISH=cea7c4b952b3e67110dc1032b8996dae0db9a857
-ARG NEXMON_REMOTE=https://github.com/hectorm/nexmon.git
-RUN mkdir /tmp/nexmon/
-WORKDIR /tmp/nexmon/
-RUN git clone "${NEXMON_REMOTE:?}" ./
-RUN git checkout "${NEXMON_TREEISH:?}"
-RUN git submodule update --init --recursive
+COPY --from=projects --chown=root:root /tmp/nexmon/ /tmp/nexmon/
 WORKDIR /tmp/nexmon/utilities/nexutil/
 RUN make nexutil
 RUN mv ./nexutil /usr/local/bin/nexutil
@@ -136,30 +182,17 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Bettercap
-ARG BETTERCAP_TREEISH=v2.32.0
-ARG BETTERCAP_REMOTE=https://github.com/bettercap/bettercap.git
-RUN mkdir /tmp/bettercap/
+COPY --from=projects --chown=root:root /tmp/bettercap/ /tmp/bettercap/
+COPY ./patches/bettercap-*.patch /tmp/bettercap/
 WORKDIR /tmp/bettercap/
-RUN git clone "${BETTERCAP_REMOTE:?}" ./
-RUN git checkout "${BETTERCAP_TREEISH:?}"
-RUN git submodule update --init --recursive
-COPY ./patches/bettercap-*.patch ./
 RUN git apply -v ./bettercap-*.patch
 RUN go mod download -x
 RUN go build -v -o ./dist/bettercap ./
 RUN mv ./dist/bettercap /usr/local/bin/bettercap
+RUN mkdir -p /usr/local/share/bettercap/
+RUN mv ./dist/ui/ /usr/local/share/bettercap/ui/
 RUN file /usr/local/bin/bettercap
 RUN /usr/local/bin/bettercap --version
-
-# Install Bettercap UI
-ARG BETTERCAP_UI_VERSION=v1.3.0
-ARG BETTERCAP_UI_PKG_URL=https://github.com/bettercap/ui/releases/download/${BETTERCAP_UI_VERSION}/ui.zip
-RUN mkdir /tmp/bettercap-ui/
-WORKDIR /tmp/bettercap-ui/
-RUN wget -qO ./ui.zip "${BETTERCAP_UI_PKG_URL:?}"
-RUN unzip -q ./ui.zip -d ./
-RUN mkdir -p /usr/local/share/bettercap/
-RUN mv ./ui/ /usr/local/share/bettercap/ui/
 
 ##################################################
 ## "build-pwngrid" stage
@@ -175,13 +208,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build PwnGRID
-ARG PWNGRID_TREEISH=v1.10.3
-ARG PWNGRID_REMOTE=https://github.com/evilsocket/pwngrid.git
-RUN mkdir /tmp/pwngrid/
+COPY --from=projects --chown=root:root /tmp/pwngrid/ /tmp/pwngrid/
 WORKDIR /tmp/pwngrid/
-RUN git clone "${PWNGRID_REMOTE:?}" ./
-RUN git checkout "${PWNGRID_TREEISH:?}"
-RUN git submodule update --init --recursive
 RUN go mod download -x
 RUN go build -v -o ./dist/pwngrid ./cmd/pwngrid/*.go
 RUN mv ./dist/pwngrid /usr/local/bin/pwngrid
@@ -239,13 +267,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Build Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=544314b88cee7f2ee488b49bd61636d664a4c7fa
-ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
-RUN mkdir /tmp/pwnagotchi/
+COPY --from=projects --chown=root:root /tmp/pwnagotchi/ /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
-RUN git clone "${PWNAGOTCHI_REMOTE:?}" ./
-RUN git checkout "${PWNAGOTCHI_TREEISH:?}"
-RUN git submodule update --init --recursive
 # Modify some hardcoded paths
 RUN sed -ri 's|^\s*(DefaultPath)\s*=.+$|\1 = "/root/"|' ./pwnagotchi/identity.py
 # Create virtual environment and install requirements
