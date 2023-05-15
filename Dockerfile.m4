@@ -253,7 +253,7 @@ ENV PWNAGOTCHI_VENV=/usr/local/lib/pwnagotchi/
 ENV PWNAGOTCHI_ENABLE_INSTALLER=false
 COPY ./requirements.txt ./requirements.txt
 RUN python3 -m venv --symlinks "${PWNAGOTCHI_VENV:?}"
-RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install --upgrade pip
+RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install --upgrade pip==23.0.1
 RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install -r ./requirements.txt
 RUN "${PWNAGOTCHI_VENV:?}"/bin/python -m pip install ./
 RUN "${PWNAGOTCHI_VENV:?}"/bin/pwnagotchi --version
