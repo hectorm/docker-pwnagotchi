@@ -52,7 +52,7 @@ smbus2==0.4.1
 spidev==3.5
 stable-baselines==2.10.2
 tensorboard==1.13.1
-tensorflow==1.13.1
+tensorflow==2.11.1
 tensorflow-estimator==1.14.0; platform_machine == 'armv6l'
 tensorflow-estimator==1.13.0; platform_machine != 'armv6l'
 termcolor==1.1.0
