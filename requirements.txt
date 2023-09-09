@@ -8,7 +8,7 @@ cloudpickle==1.6.0
 cycler==0.11.0
 dbus-python==1.2.18
 file-read-backwards==2.0.0
-Flask==2.1.2
+Flask==2.2.5
 Flask-Cors==3.0.10
 Flask-WTF==1.0.1
 fonttools==4.33.3
