@@ -22,7 +22,7 @@ importlib-metadata==4.11.4
 inky==1.3.2
 itsdangerous==2.1.2
 Jinja2==3.1.2
-joblib==1.1.0
+joblib==1.2.0
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.2
 kiwisolver==1.4.1
