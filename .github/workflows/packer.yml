@@ -24,7 +24,7 @@ jobs:
         working-directory: './packer/'
     steps:
       - name: 'Checkout project'
-        uses: 'actions/checkout@v3'
+        uses: 'actions/checkout@v4'
       - name: 'Install dependencies'
         run: |
           curl --proto '=https' --tlsv1.3 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
@@ -51,7 +51,7 @@ jobs:
         working-directory: './packer/'
     steps:
       - name: 'Checkout project'
-        uses: 'actions/checkout@v3'
+        uses: 'actions/checkout@v4'
       - name: 'Install dependencies'
         run: |
           curl --proto '=https' --tlsv1.3 -sSf 'https://apt.releases.hashicorp.com/gpg' | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/hashicorp.gpg
