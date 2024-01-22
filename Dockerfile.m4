@@ -9,7 +9,7 @@ m4_ifelse(m4_index(DEBIAN_IMAGE_NAME, [[rpi]]), [[-1]],
 ## "projects" stage
 ##################################################
 
-FROM docker.io/alpine:3 AS projects
+FROM --platform=${BUILDPLATFORM} docker.io/alpine:3 AS projects
 
 RUN apk add --no-cache ca-certificates curl git unzip
 
