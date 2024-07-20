@@ -62,7 +62,6 @@ RUN git submodule update --init --recursive
 ##################################################
 
 FROM DEBIAN_IMAGE_NAME:DEBIAN_IMAGE_TAG AS base
-m4_ifdef([[CROSS_QEMU]], [[COPY --from=docker.io/hectorm/qemu-user-static:latest CROSS_QEMU CROSS_QEMU]])
 
 # Install base packages
 RUN export DEBIAN_FRONTEND=noninteractive \

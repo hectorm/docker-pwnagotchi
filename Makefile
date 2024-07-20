@@ -77,7 +77,6 @@ $(IMAGE_GENERIC_AMD64_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 		--prefix-builtins \
 		--define=DEBIAN_IMAGE_NAME=docker.io/amd64/debian \
 		--define=DEBIAN_IMAGE_TAG=buster \
-		--define=CROSS_QEMU=/usr/bin/qemu-x86_64-static \
 		'$(DOCKERFILE_TEMPLATE)' > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-generic-amd64' \
@@ -94,7 +93,6 @@ $(IMAGE_RASPIOS_ARM64V8_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 		--prefix-builtins \
 		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
 		--define=DEBIAN_IMAGE_TAG=buster \
-		--define=CROSS_QEMU=/usr/bin/qemu-aarch64-static \
 		'$(DOCKERFILE_TEMPLATE)' > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm64v8' \
@@ -111,7 +109,6 @@ $(IMAGE_RASPIOS_ARM32V7_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 		--prefix-builtins \
 		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
 		--define=DEBIAN_IMAGE_TAG=buster \
-		--define=CROSS_QEMU=/usr/bin/qemu-arm-static \
 		'$(DOCKERFILE_TEMPLATE)' > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm32v7' \
@@ -128,7 +125,6 @@ $(IMAGE_RASPIOS_ARM32V6_DOCKERFILE): $(DOCKERFILE_TEMPLATE)
 		--prefix-builtins \
 		--define=DEBIAN_IMAGE_NAME=docker.io/balenalib/rpi-raspbian \
 		--define=DEBIAN_IMAGE_TAG=buster \
-		--define=CROSS_QEMU=/usr/bin/qemu-arm-static \
 		'$(DOCKERFILE_TEMPLATE)' > '$@'
 	'$(DOCKER)' build $(IMAGE_BUILD_OPTS) \
 		--tag '$(IMAGE_NAME):$(IMAGE_VERSION)-raspios-arm32v6' \
