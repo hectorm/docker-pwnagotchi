@@ -49,7 +49,7 @@ RUN git checkout "${PWNGRID_TREEISH:?}"
 RUN git submodule update --init --recursive
 
 # Download Pwnagotchi
-ARG PWNAGOTCHI_TREEISH=2122af4e264495d32ee415c074da8efd905901f0
+ARG PWNAGOTCHI_TREEISH=ef0f35da0a4c7708a0e99dc0f75a4182efe328a5
 ARG PWNAGOTCHI_REMOTE=https://github.com/evilsocket/pwnagotchi.git
 RUN mkdir /tmp/pwnagotchi/
 WORKDIR /tmp/pwnagotchi/
