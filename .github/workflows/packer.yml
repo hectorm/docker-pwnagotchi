@@ -16,7 +16,7 @@ permissions: {}
 jobs:
   validate-packer:
     name: "Validate Packer configuration"
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     permissions:
       contents: "read"
     defaults:
@@ -43,7 +43,7 @@ jobs:
   build-packer:
     name: "Build Packer image"
     needs: ["validate-packer"]
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     permissions:
       contents: "read"
     defaults:
